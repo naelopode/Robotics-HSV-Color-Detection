@@ -3,7 +3,7 @@
 #include <main.h>
 #include <usbcfg.h>
 #include <chprintf.h>
-
+#include <math.h>
 #include <motors.h>
 #include <audio/microphone.h>
 #include <audio_processing.h>
@@ -123,10 +123,27 @@ void processAudioData(int16_t *data, uint16_t num_samples){
 		arm_cmplx_mag_f32(micFront_cmplx_input, micFront_output, FFT_SIZE);
 		arm_cmplx_mag_f32(micBack_cmplx_input, micBack_output, FFT_SIZE);
 
+
+		//chprintf((BaseSequentialStream *)&SDU1, "hello \n");
+
 		if(mustSend > 8){
 			chBSemSignal(&sendToComputer_sem);
 			mustSend = 0;
 		//	chprintf((BaseSequentialStream *)&SDU1, "max = %d \r\n", (float)max(micBack_output));
+			float max_norm = 10000;
+			int16_t max_norm_index = -1;
+			for(uint16_t i = MIN_FREQ ; i <= MAX_FREQ ; i++){
+					if(micRight_output[i] > max_norm){
+						max_norm = micRight_output[i];
+						max_norm_index = i;
+					}
+				}
+
+			float realIn = micRight_cmplx_input[max_norm_index];
+			float imagIn = micRight_cmplx_input[max_norm_index+1];
+
+			float phase = atan2f(imagIn,realIn);
+			chprintf((BaseSequentialStream *)&SDU1, "phase = %f \r\n", (float)phase);
 		}
 
 	nb_samples = 0;
