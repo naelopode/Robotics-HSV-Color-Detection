@@ -10,6 +10,8 @@
 #include <communications.h>
 #include <fft.h>
 #include <arm_math.h>
+#include <pi_regulator.h>
+
 
 //semaphore
 static BSEMAPHORE_DECL(sendToComputer_sem, TRUE);
@@ -25,6 +27,7 @@ static float micRight_output[FFT_SIZE];
 static float micFront_output[FFT_SIZE];
 static float micBack_output[FFT_SIZE];
 
+static float amp_diff = 0;
 
 #define MIN_VALUE_THRESHOLD 10000
 
@@ -123,33 +126,55 @@ void processAudioData(int16_t *data, uint16_t num_samples){
 		arm_cmplx_mag_f32(micFront_cmplx_input, micFront_output, FFT_SIZE);
 		arm_cmplx_mag_f32(micBack_cmplx_input, micBack_output, FFT_SIZE);
 
-
 		//chprintf((BaseSequentialStream *)&SDU1, "hello \n");
 
-		if(mustSend > 8){
+		float max_norm = 1000;
+		int16_t max_norm_index = -1;
+		for(uint16_t i = 0 ; i <= FFT_SIZE-1 ; i++){
+			if(micRight_output[i] > max_norm){
+				max_norm = micRight_output[i];
+				max_norm_index = i;
+			}
+		}
+	//	for(uint16_t i = 0 ; i <= SAMPLES-1 ; i++){
+	//		amplitude1[i] = micRight_output[max_norm_index];
+	//		amplitude2[i] = micLeft_output[max_norm_index];
+	//	}
+
+		if(mustSend > SAMPLES){
 			chBSemSignal(&sendToComputer_sem);
 			mustSend = 0;
+
 		//	chprintf((BaseSequentialStream *)&SDU1, "max = %d \r\n", (float)max(micBack_output));
-			float max_norm = 10000;
-			int16_t max_norm_index = -1;
-			for(uint16_t i = MIN_FREQ ; i <= MAX_FREQ ; i++){
-					if(micRight_output[i] > max_norm){
-						max_norm = micRight_output[i];
-						max_norm_index = i;
-					}
-				}
 
-			float realIn = micRight_cmplx_input[max_norm_index];
-			float imagIn = micRight_cmplx_input[max_norm_index+1];
+			float moyenne_amplitude = 0;
+			moyenne_amplitude = moyenne_amplitude+micRight_output[max_norm_index]-micLeft_output[max_norm_index];
+			moyenne_amplitude=moyenne_amplitude/SAMPLES;
+			amp_diff=moyenne_amplitude;
 
-			float phase = atan2f(imagIn,realIn);
-			chprintf((BaseSequentialStream *)&SDU1, "phase = %f \r\n", (float)phase);
+			//float realIn_R = micRight_cmplx_input[max_norm_index];
+			//float imagIn_R = micRight_cmplx_input[max_norm_index+1];
+
+			//float realIn_L = micLeft_cmplx_input[max_norm_index];
+			//float imagIn_L = micLeft_cmplx_input[max_norm_index+1];
+
+			//float phase1 = atan2f(imagIn_R,realIn_R);
+			//float phase2 = atan2f(imagIn_L,realIn_L);
+			//float delta_phase = phase2-phase1;
+
+
+			//float amplitude2 = micLeft_output[max_norm_index];
+			//float amplitude_delta = amplitude2-amplitude1;
+
+		//	chprintf((BaseSequentialStream *)&SDU1, "delta phase = %f \r", (float)delta_phase);
+			chprintf((BaseSequentialStream *)&SDU1, "moy amp = %f \r", (float)moyenne_amplitude);
+
 		}
 
 	nb_samples = 0;
 	mustSend++;
 
-	sound_remote(micLeft_output);
+	//sound_remote(micLeft_output);
 	}
 }
 
@@ -194,4 +219,8 @@ float* get_audio_buffer_ptr(BUFFER_NAME_t name){
 	else{
 		return NULL;
 	}
+}
+
+float get_amp_diff(){
+	return amp_diff;
 }

@@ -11,6 +11,8 @@
 #include <motors.h>
 #include <audio/microphone.h>
 
+#include <pi_regulator.h>
+
 #include <audio_processing.h>
 #include <fft.h>
 #include <communications.h>
@@ -65,6 +67,7 @@ int main(void)
     timer12_start();
     //inits the motors
     motors_init();
+    pi_regulator_start();
 
     //send_tab is used to save the state of the buffer to send (double buffering)
     //to avoid modifications of the buffer while sending it
