@@ -60,15 +60,24 @@ static THD_FUNCTION(PiRegulator, arg) {
         //speed = pi_regulator(get_amp_diff(), GOAL_AMP_DIFF);
         speed=0;
         //computes a correction factor to let the robot rotate to be in front of the line
-        speed_correction = (get_amp_diff() - MIC_RESOLUTION);
+        speed_correction = (pi_regulator(get_amp_diff(),0));
 
         //if the line is nearly in front of the camera, don't rotate
         if(abs(speed_correction) < ROTATION_THRESHOLD){
         	speed_correction = 0;
         }
-
+        if(speed_correction>0){
+        	chprintf((BaseSequentialStream *)&SDU1, "right \r\n");
+        } else if (speed_correction<0){
+        	chprintf((BaseSequentialStream *)&SDU1, "left \r\n");
+        }else {
+        	chprintf((BaseSequentialStream *)&SDU1, "neutral \r\n");
+        }
+        chprintf((BaseSequentialStream *)&SDU1, "bruit: %f \r\n", (float)get_amp_diff());
         //applies the speed from the PI regulator and the correction for the rotation
 		right_motor_set_speed(speed - ROTATION_COEFF * speed_correction);
+        //        chprintf((BaseSequentialStream *)&SDU1, "right vs left = %f \r", (float)moyenne_amplitude);
+
 		left_motor_set_speed(speed + ROTATION_COEFF * speed_correction);
 
         //100Hz

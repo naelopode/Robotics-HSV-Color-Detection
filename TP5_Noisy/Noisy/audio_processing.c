@@ -26,7 +26,7 @@ static float micLeft_output[FFT_SIZE];
 static float micRight_output[FFT_SIZE];
 static float micFront_output[FFT_SIZE];
 static float micBack_output[FFT_SIZE];
-
+static float moyenne_amplitude = 0;
 static float amp_diff = 0;
 
 #define MIN_VALUE_THRESHOLD 10000
@@ -147,9 +147,9 @@ void processAudioData(int16_t *data, uint16_t num_samples){
 
 		//	chprintf((BaseSequentialStream *)&SDU1, "max = %d \r\n", (float)max(micBack_output));
 
-			float moyenne_amplitude = 0;
+
 			moyenne_amplitude = moyenne_amplitude+micRight_output[max_norm_index]-micLeft_output[max_norm_index];
-			moyenne_amplitude=moyenne_amplitude/SAMPLES;
+			moyenne_amplitude = moyenne_amplitude/SAMPLES;
 			amp_diff=moyenne_amplitude;
 
 			//float realIn_R = micRight_cmplx_input[max_norm_index];
@@ -167,7 +167,7 @@ void processAudioData(int16_t *data, uint16_t num_samples){
 			//float amplitude_delta = amplitude2-amplitude1;
 
 		//	chprintf((BaseSequentialStream *)&SDU1, "delta phase = %f \r", (float)delta_phase);
-			chprintf((BaseSequentialStream *)&SDU1, "moy amp = %f \r", (float)moyenne_amplitude);
+			//chprintf((BaseSequentialStream *)&SDU1, "moy amp = %f \r", (float)moyenne_amplitude);
 
 		}
 
