@@ -6,3 +6,5 @@ TP5_Noisy/Noisy/libssp_nonshared.a
 TP5_Noisy/Noisy/libssp.a
 
 TP5_Noisy/Noisy/build/
+
+TP4_CamReg/CamReg/build/
