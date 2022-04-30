@@ -129,7 +129,9 @@ static THD_FUNCTION(ProcessImage, arg) {
     (void)arg;
 
 	uint8_t *img_buff_ptr;
-	uint8_t image[IMAGE_BUFFER_SIZE] = {0};
+	uint8_t imageR[IMAGE_BUFFER_SIZE] = {0};
+	//uint8_t imageG[IMAGE_BUFFER_SIZE] = {0};
+	//uint8_t imageB[IMAGE_BUFFER_SIZE] = {0};
 	uint16_t lineWidth = 0;
 
 	bool send_to_computer = true;
@@ -144,21 +146,48 @@ static THD_FUNCTION(ProcessImage, arg) {
 		for(uint16_t i = 0 ; i < (2 * IMAGE_BUFFER_SIZE) ; i+=2){
 			//extracts first 5bits of the first byte
 			//takes nothing from the second byte
-			image[i/2] = (uint8_t)img_buff_ptr[i]&0xF8;
+			imageR[i/2] = (uint8_t)img_buff_ptr[i];
+			//imageG[i/2] = (uint8_t)img_buff_ptr[i]&0b00000111;
+			//imageG[i/2] = (uint8_t)img_buff_ptr[i+1]&11100000;
+			//if(i < (2*IMAGE_BUFFER_SIZE)){
+			//	imageB[i/2] = (uint8_t)img_buff_ptr[i+1]&0b00011111;
+			//}
 		}
 
 		//search for a line in the image and gets its width in pixels
-		lineWidth = extract_line_width(image);
+		lineWidth = extract_line_width(imageR);
 
 		//converts the width into a distance between the robot and the camera
 		if(lineWidth){
 			distance_cm = PXTOCM/lineWidth;
 		}
 
+		//uint8_t max = 0;
+		//for(uint16_t i = 0; i < (2 * IMAGE_BUFFER_SIZE); i+=2){
+		//	if(image[i/2] > max){
+		//		max = image[i/2];
+		//	}
+		//}
+		float moy_r = 0;
+		//float moy_b = 0;
+		for (uint16_t i = 0; i < IMAGE_BUFFER_SIZE; i++){
+			moy_r = moy_r + imageR[i];
+			//moy_b = moy_b + imageB[i];
+		}
+		moy_r = moy_r/IMAGE_BUFFER_SIZE;
+		//moy_b = moy_b/IMAGE_BUFFER_SIZE;
+
 		if(send_to_computer){
 			//sends to the computer the image
 			//SendUint8ToComputer(image, IMAGE_BUFFER_SIZE);
-						//playNote(2794,25);
+			//chprintf((BaseSequentialStream *)&SD3, "moy_r =  %f \r", (float)moy_r);
+			//chprintf((BaseSequentialStream *)&SD3, "moy_b =  %i \r", (float)moy_b);
+			if(moy_r <= 75){
+				chprintf((BaseSequentialStream *)&SD3, "bleu \r");
+			}
+			else if(moy_r >75){
+				chprintf((BaseSequentialStream *)&SD3, "rouge \r");
+			}
 		}
 		//invert the bool
 		send_to_computer = !send_to_computer;

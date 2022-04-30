@@ -108,9 +108,9 @@ static THD_FUNCTION(PiRegulator, arg) {
 //        chprintf((BaseSequentialStream *)&SD3, "gyro x %f \r", (float)get_gyro_rate(0));
 //        chprintf((BaseSequentialStream *)&SD3, "gyro y %f \r", (float)get_gyro_rate(1));
 //        chprintf((BaseSequentialStream *)&SD3, "gyro z %f \r", (float)get_gyro_rate(2));
-        stopCurrentMelody();
-        playNote(NOTE_C8,1000);
-        chThdSleepUntilWindowed(time, time + MS2ST(10000));
+       // stopCurrentMelody();
+     //   playNote(NOTE_C8,1000);
+      //  chThdSleepUntilWindowed(time, time + MS2ST(10000));
     }
 }
 
