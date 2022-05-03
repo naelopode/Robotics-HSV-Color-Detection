@@ -129,8 +129,8 @@ static THD_FUNCTION(ProcessImage, arg) {
     (void)arg;
 
 	uint8_t *img_buff_ptr;
-	uint8_t imageR[IMAGE_BUFFER_SIZE] = {0};
-	//uint8_t imageG[IMAGE_BUFFER_SIZE] = {0};
+	//uint8_t imageR[IMAGE_BUFFER_SIZE] = {0};
+	uint8_t imageG[IMAGE_BUFFER_SIZE] = {0};
 	//uint8_t imageB[IMAGE_BUFFER_SIZE] = {0};
 	uint16_t lineWidth = 0;
 
@@ -143,11 +143,11 @@ static THD_FUNCTION(ProcessImage, arg) {
 		img_buff_ptr = dcmi_get_last_image_ptr();
 
 		//Extracts only the red pixels
-		for(uint16_t i = 0 ; i < (2 * IMAGE_BUFFER_SIZE) ; i+=2){
+		for(uint16_t i = 0 ; i < (2 * IMAGE_BUFFER_SIZE-1) ; i+=2){
 			//extracts first 5bits of the first byte
 			//takes nothing from the second byte
-			imageR[i/2] = (uint8_t)img_buff_ptr[i];
-			//imageG[i/2] = (uint8_t)img_buff_ptr[i]&0b00000111;
+			//imageR[i/2] = (uint8_t)img_buff_ptr[i];
+			imageG[i/2] = ((((uint8_t)img_buff_ptr[i]&0b00000111)<<3) +(((uint8_t)img_buff_ptr[i+1]&0b11100000)>>5));
 			//imageG[i/2] = (uint8_t)img_buff_ptr[i+1]&11100000;
 			//if(i < (2*IMAGE_BUFFER_SIZE)){
 			//	imageB[i/2] = (uint8_t)img_buff_ptr[i+1]&0b00011111;
@@ -155,7 +155,7 @@ static THD_FUNCTION(ProcessImage, arg) {
 		}
 
 		//search for a line in the image and gets its width in pixels
-		lineWidth = extract_line_width(imageR);
+		lineWidth = extract_line_width(imageG);
 
 		//converts the width into a distance between the robot and the camera
 		if(lineWidth){
@@ -170,24 +170,47 @@ static THD_FUNCTION(ProcessImage, arg) {
 		//}
 		float moy_r = 0;
 		//float moy_b = 0;
-		for (uint16_t i = 0; i < IMAGE_BUFFER_SIZE; i++){
-			moy_r = moy_r + imageR[i];
+		//for (uint16_t i = 0; i < IMAGE_BUFFER_SIZE; i++){
+		//	moy_r = moy_r + imageR[i];
 			//moy_b = moy_b + imageB[i];
-		}
+		//}
 		moy_r = moy_r/IMAGE_BUFFER_SIZE;
 		//moy_b = moy_b/IMAGE_BUFFER_SIZE;
 
+		uint8_t rouge = 0;
+		uint8_t vert = 0;
+		uint8_t bleu = 0;
+		for(uint16_t i = 0; i < 10; i++){
+			rouge += ((uint8_t)img_buff_ptr[IMAGE_BUFFER_SIZE+i]&0b11111000)>>3;
+			vert +=((((uint8_t)img_buff_ptr[IMAGE_BUFFER_SIZE+i]&0b00000111)<<3) +(((uint8_t)img_buff_ptr[IMAGE_BUFFER_SIZE+1+i]&0b11100000)>>5));
+			bleu += (uint8_t)img_buff_ptr[(IMAGE_BUFFER_SIZE) + 1 + i]&0b00011111;
+		}
+
+		float moy_r = (float)rouge/10;
+		float moy_g = (float)vert/10;
+		float moy_b = (float)bleu/10;
+
+		uint8_t rouge_888 = moy_r/31 * 255;
+		uint8_t vert_888 = moy_g/63 * 255;
+		uint8_t bleu_888 = moy_b/31 * 255;
+
 		if(send_to_computer){
 			//sends to the computer the image
-			//SendUint8ToComputer(image, IMAGE_BUFFER_SIZE);
+			SendUint8ToComputer(imageG, IMAGE_BUFFER_SIZE);
 			//chprintf((BaseSequentialStream *)&SD3, "moy_r =  %f \r", (float)moy_r);
 			//chprintf((BaseSequentialStream *)&SD3, "moy_b =  %i \r", (float)moy_b);
-			if(moy_r <= 75){
-				chprintf((BaseSequentialStream *)&SD3, "bleu \r");
-			}
-			else if(moy_r >75){
-				chprintf((BaseSequentialStream *)&SD3, "rouge \r");
-			}
+			//if(moy_r <= 75){
+			//	chprintf((BaseSequentialStream *)&SD3, "bleu \r");
+			//}
+			//else if(moy_r >75){
+			//	chprintf((BaseSequentialStream *)&SD3, "rouge \r");
+			//}
+
+			chprintf((BaseSequentialStream *)&SD3, " R= %i", rouge_888);
+			chprintf((BaseSequentialStream *)&SD3, " G= %i", vert_888);
+			chprintf((BaseSequentialStream *)&SD3, " B= %i\n", bleu_888);
+
+
 		}
 		//invert the bool
 		send_to_computer = !send_to_computer;
