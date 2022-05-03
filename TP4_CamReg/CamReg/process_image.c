@@ -2,15 +2,25 @@
 #include "hal.h"
 #include <chprintf.h>
 #include <usbcfg.h>
+#include <math.h>
 
 #include <main.h>
 #include <camera/po8030.h>
 #include <audio/play_melody.h>
 #include <process_image.h>
+#include <motors.h>
+#include "motor.h"
+#include "gpio.h"
 
+#define WHEEL_DISTANCE      5.35f    //cm
+#define PERIMETER_EPUCK     (M_PI * WHEEL_DISTANCE)
 
 static float distance_cm = 0;
+static float l_tot = 0;
 static uint16_t line_position = IMAGE_BUFFER_SIZE/2;	//middle
+
+static float robot_x;
+static float robot_y;
 
 //semaphore
 static BSEMAPHORE_DECL(image_ready_sem, TRUE);
@@ -168,13 +178,13 @@ static THD_FUNCTION(ProcessImage, arg) {
 		//		max = image[i/2];
 		//	}
 		//}
-		float moy_r = 0;
+		//float moy_r = 0;
 		//float moy_b = 0;
 		//for (uint16_t i = 0; i < IMAGE_BUFFER_SIZE; i++){
 		//	moy_r = moy_r + imageR[i];
 			//moy_b = moy_b + imageB[i];
 		//}
-		moy_r = moy_r/IMAGE_BUFFER_SIZE;
+		//moy_r = moy_r/IMAGE_BUFFER_SIZE;
 		//moy_b = moy_b/IMAGE_BUFFER_SIZE;
 
 		uint8_t rouge = 0;
@@ -194,6 +204,11 @@ static THD_FUNCTION(ProcessImage, arg) {
 		uint8_t vert_888 = moy_g/63 * 255;
 		uint8_t bleu_888 = moy_b/31 * 255;
 
+		float x = convert_rgb_cm(rouge_888);
+		float y = convert_rgb_cm(bleu_888);
+
+		goto_position(x,y);
+
 		if(send_to_computer){
 			//sends to the computer the image
 			SendUint8ToComputer(imageG, IMAGE_BUFFER_SIZE);
@@ -209,12 +224,15 @@ static THD_FUNCTION(ProcessImage, arg) {
 			chprintf((BaseSequentialStream *)&SD3, " R= %i", rouge_888);
 			chprintf((BaseSequentialStream *)&SD3, " G= %i", vert_888);
 			chprintf((BaseSequentialStream *)&SD3, " B= %i\n", bleu_888);
-
-
 		}
 		//invert the bool
 		send_to_computer = !send_to_computer;
     }
+}
+
+float convert_rgb_cm(uint8_t c){
+	float x = l_tot*(float)c/255;
+	return x;
 }
 
 float get_distance_cm(void){
@@ -228,4 +246,80 @@ uint16_t get_line_position(void){
 void process_image_start(void){
 	chThdCreateStatic(waProcessImage, sizeof(waProcessImage), NORMALPRIO, ProcessImage, NULL);
 	chThdCreateStatic(waCaptureImage, sizeof(waCaptureImage), NORMALPRIO, CaptureImage, NULL);
+}
+
+void goto_position(float x,float y){
+
+	// + + = forward
+	// - - = backward
+	// + - = ccw
+	// - + = cw
+
+	if(robot_x == 0 && robot_y == 0){
+		motor_set_position(y,y,5,5);
+		while(motor_position_reached() != POSITION_REACHED);
+	    motor_set_position(PERIMETER_EPUCK/4, PERIMETER_EPUCK/4, -5, 5);
+		while(motor_position_reached() != POSITION_REACHED);
+		motor_set_position(x,x,5,5);
+		while(motor_position_reached() != POSITION_REACHED);
+
+		robot_x = x;
+		robot_y = y;
+
+	} else if(x < robot_x && y < robot_y){
+		motor_set_position(PERIMETER_EPUCK/4,PERIMETER_EPUCK/4,5,-5);
+		while(motor_position_reached() != POSITION_REACHED);
+		motor_set_position(robot_y - y,robot_y - y,5,5);
+		while(motor_position_reached() != POSITION_REACHED);
+		motor_set_position(PERIMETER_EPUCK/4,PERIMETER_EPUCK/4,-5,5);
+		while(motor_position_reached() != POSITION_REACHED);
+		motor_set_position(robot_x - x,robot_x - x,5,5);
+		while(motor_position_reached() != POSITION_REACHED);
+		motor_set_position(PERIMETER_EPUCK/2,PERIMETER_EPUCK/2,-5,5);
+		while(motor_position_reached() != POSITION_REACHED);
+
+		robot_x = x;
+		robot_y = y;
+
+	} else if(x > robot_x && y < robot_y){
+		motor_set_position(PERIMETER_EPUCK/4,PERIMETER_EPUCK/4,5,-5);
+		while(motor_position_reached() != POSITION_REACHED);
+		motor_set_position(robot_y - y,robot_y - y,5,5);
+		while(motor_position_reached() != POSITION_REACHED);
+		motor_set_position(PERIMETER_EPUCK/4,PERIMETER_EPUCK/4,5,-5);
+		while(motor_position_reached() != POSITION_REACHED);
+		motor_set_position(x - robot_x,x - robot_x,5,5);
+		while(motor_position_reached() != POSITION_REACHED);
+
+		robot_x = x;
+		robot_y = y;
+
+	} else if(x < robot_x && y > robot_y){
+		motor_set_position(PERIMETER_EPUCK/4,PERIMETER_EPUCK/4,-5,5);
+		while(motor_position_reached() != POSITION_REACHED);
+		motor_set_position(y - robot_y,y - robot_y,5,5);
+		while(motor_position_reached() != POSITION_REACHED);
+		motor_set_position(PERIMETER_EPUCK/4,PERIMETER_EPUCK/4,-5,5);
+		while(motor_position_reached() != POSITION_REACHED);
+		motor_set_position(robot_x - x,robot_x - x,5,5);
+		while(motor_position_reached() != POSITION_REACHED);
+		motor_set_position(PERIMETER_EPUCK/2,PERIMETER_EPUCK/2,-5,5);
+		while(motor_position_reached() != POSITION_REACHED);
+
+		robot_x = x;
+		robot_y = y;
+
+	} else if(x > robot_x && y > robot_y){
+		motor_set_position(PERIMETER_EPUCK/4,PERIMETER_EPUCK/4,-5,5);
+		while(motor_position_reached() != POSITION_REACHED);
+		motor_set_position(y - robot_y,y - robot_y,5,5);
+		while(motor_position_reached() != POSITION_REACHED);
+		motor_set_position(PERIMETER_EPUCK/4,PERIMETER_EPUCK/4,5,-5);
+		while(motor_position_reached() != POSITION_REACHED);
+		motor_set_position(x - robot_x,x - robot_x,5,5);
+		while(motor_position_reached() != POSITION_REACHED);
+
+		robot_x = x;
+		robot_y = y;
+	}
 }
