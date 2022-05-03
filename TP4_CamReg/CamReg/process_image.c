@@ -155,12 +155,12 @@ static THD_FUNCTION(ProcessImage, arg) {
 		}
 
 		//search for a line in the image and gets its width in pixels
-		lineWidth = extract_line_width(imageG);
+		lineWidth = extract_line_width(imageR);
 
 		//converts the width into a distance between the robot and the camera
-		if(lineWidth){
-			distance_cm = PXTOCM/lineWidth;
-		}
+//		if(lineWidth){
+//			distance_cm = PXTOCM/lineWidth;
+//		}
 
 		//uint8_t max = 0;
 		//for(uint16_t i = 0; i < (2 * IMAGE_BUFFER_SIZE); i+=2){
@@ -168,10 +168,21 @@ static THD_FUNCTION(ProcessImage, arg) {
 		//		max = image[i/2];
 		//	}
 		//}
-		float moy_r = 0;
+
+		float main_colors[];
+		float local_mean = 0;
+		float local_nb = 0;
 		//float moy_b = 0;
-		//for (uint16_t i = 0; i < IMAGE_BUFFER_SIZE; i++){
-		//	moy_r = moy_r + imageR[i];
+		for (uint16_t i = 1; i < IMAGE_BUFFER_SIZE; i++){
+			if ((imageR[i]<imageR[i-1]-7) && (imageR[i]>imageR[i-1]+7)){
+				local_mean = local_mean + imageR[i];
+				++local_nb;
+			} else if (local_nb>5){
+				main_colors[sizeof(main_colors)]=local_mean;
+				local_nb=0;
+			}
+
+			moy_r = moy_r + imageR[i];
 			//moy_b = moy_b + imageB[i];
 		//}
 		moy_r = moy_r/IMAGE_BUFFER_SIZE;
