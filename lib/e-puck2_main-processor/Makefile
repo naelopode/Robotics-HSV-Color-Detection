@@ -237,7 +237,7 @@ ifeq ($(USE_ASEBA_BOOTLOADER),yes)
 endif
 
 # Define ASM defines here
-UADEFS =
+UADEFS = 
 
 # List all user directories here
 UINCDIR =

@@ -19,7 +19,6 @@
 #include <audio/audio_thread.h>
 #include <audio/play_melody.h>
 #include <spi_comm.h>
-#include <stm32f4xx.h>
 messagebus_t bus;
 MUTEX_DECL(bus_lock);
 CONDVAR_DECL(bus_condvar);
@@ -47,7 +46,6 @@ static void serial_start(void)
 
 int main(void)
 {
-
     halInit();
     chSysInit();
     mpu_init();
