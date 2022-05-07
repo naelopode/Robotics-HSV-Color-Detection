@@ -1,4 +1,4 @@
-build/obj/process_image.o: process_image.c \
+build/obj/coordinate_motor.o: coordinate_motor.c \
  ../../lib/e-puck2_main-processor/ChibiOS//os/rt/include/ch.h \
  ../../lib/e-puck2_main-processor/ChibiOS//os/rt/ports/ARMCMx/compilers/GCC/chtypes.h \
  c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\lib\gcc\arm-none-eabi\7.2.1\include\stddef.h \
@@ -99,20 +99,6 @@ build/obj/process_image.o: process_image.c \
  ../../lib/e-puck2_main-processor/ChibiOS_ext/os/hal/ports/STM32/STM32F4xx/stm32_registry.h \
  ../../lib/e-puck2_main-processor/ChibiOS//os/hal/include/mmc_spi.h \
  ../../lib/e-puck2_main-processor/ChibiOS//os/hal/include/serial_usb.h \
- ../../lib/e-puck2_main-processor/ChibiOS//os/hal/lib/streams/chprintf.h \
- c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\lib\gcc\arm-none-eabi\7.2.1\include\stdarg.h \
- ../../lib/e-puck2_main-processor/src/usbcfg.h \
- c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\math.h \
- c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\sys\reent.h \
- c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\_ansi.h \
- c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\newlib.h \
- c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\sys\config.h \
- c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\machine\ieeefp.h \
- c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\sys\_types.h \
- c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\machine\_types.h \
- c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\sys\lock.h \
- c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\sys\cdefs.h \
- c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\_ansi.h \
  main.h ../../lib/e-puck2_main-processor/src/camera/dcmi_camera.h \
  ../../lib/e-puck2_main-processor/ChibiOS_ext/os/hal/include/dcmi.h \
  ../../lib/e-puck2_main-processor/ChibiOS_ext/os/hal/include/../ports/STM32/STM32F4xx/dcmi_lld.h \
@@ -122,7 +108,15 @@ build/obj/process_image.o: process_image.c \
  ../../lib/e-puck2_main-processor/src/msgbus/messagebus.h \
  c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\unistd.h \
  c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\sys\unistd.h \
+ c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\_ansi.h \
+ c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\newlib.h \
+ c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\sys\config.h \
+ c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\machine\ieeefp.h \
+ c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\sys\cdefs.h \
  c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\sys\types.h \
+ c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\machine\_types.h \
+ c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\sys\_types.h \
+ c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\sys\lock.h \
  c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\machine\endian.h \
  c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\machine\_endian.h \
  c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\sys\select.h \
@@ -135,11 +129,22 @@ build/obj/process_image.o: process_image.c \
  c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\machine\types.h \
  ../../lib/e-puck2_main-processor/src/parameter/parameter.h \
  c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\stdlib.h \
+ c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\_ansi.h \
+ c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\sys\reent.h \
  c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\machine\stdlib.h \
  c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\alloca.h \
- ../../lib/e-puck2_main-processor/src/camera/po8030.h \
- ../../lib/e-puck2_main-processor/src/audio/play_melody.h process_image.h \
- ../../lib/e-puck2_main-processor/src/motors.h coordinate_motor.h
+ ../../lib/e-puck2_main-processor/src/usbcfg.h \
+ ../../lib/e-puck2_main-processor/ChibiOS//os/hal/lib/streams/chprintf.h \
+ c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\lib\gcc\arm-none-eabi\7.2.1\include\stdarg.h \
+ c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\math.h \
+ ../../lib/e-puck2_main-processor/src/motors.h \
+ ../../lib/e-puck2_main-processor/ChibiOS//os/ext/CMSIS/include/arm_math.h \
+ ../../lib/e-puck2_main-processor/ChibiOS//os/ext/CMSIS/include/core_cm4.h \
+ c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\string.h \
+ c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\xlocale.h \
+ c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\strings.h \
+ c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\sys\string.h \
+ coordinate_motor.h process_image.h
 
 ../../lib/e-puck2_main-processor/ChibiOS//os/rt/include/ch.h:
 
@@ -343,34 +348,6 @@ mcuconf.h:
 
 ../../lib/e-puck2_main-processor/ChibiOS//os/hal/include/serial_usb.h:
 
-../../lib/e-puck2_main-processor/ChibiOS//os/hal/lib/streams/chprintf.h:
-
-c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\lib\gcc\arm-none-eabi\7.2.1\include\stdarg.h:
-
-../../lib/e-puck2_main-processor/src/usbcfg.h:
-
-c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\math.h:
-
-c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\sys\reent.h:
-
-c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\_ansi.h:
-
-c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\newlib.h:
-
-c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\sys\config.h:
-
-c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\machine\ieeefp.h:
-
-c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\sys\_types.h:
-
-c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\machine\_types.h:
-
-c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\sys\lock.h:
-
-c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\sys\cdefs.h:
-
-c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\_ansi.h:
-
 main.h:
 
 ../../lib/e-puck2_main-processor/src/camera/dcmi_camera.h:
@@ -391,7 +368,23 @@ c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\
 
 c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\sys\unistd.h:
 
+c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\_ansi.h:
+
+c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\newlib.h:
+
+c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\sys\config.h:
+
+c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\machine\ieeefp.h:
+
+c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\sys\cdefs.h:
+
 c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\sys\types.h:
+
+c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\machine\_types.h:
+
+c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\sys\_types.h:
+
+c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\sys\lock.h:
 
 c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\machine\endian.h:
 
@@ -417,16 +410,36 @@ c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\
 
 c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\stdlib.h:
 
+c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\_ansi.h:
+
+c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\sys\reent.h:
+
 c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\machine\stdlib.h:
 
 c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\alloca.h:
 
-../../lib/e-puck2_main-processor/src/camera/po8030.h:
+../../lib/e-puck2_main-processor/src/usbcfg.h:
 
-../../lib/e-puck2_main-processor/src/audio/play_melody.h:
+../../lib/e-puck2_main-processor/ChibiOS//os/hal/lib/streams/chprintf.h:
 
-process_image.h:
+c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\lib\gcc\arm-none-eabi\7.2.1\include\stdarg.h:
+
+c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\math.h:
 
 ../../lib/e-puck2_main-processor/src/motors.h:
 
+../../lib/e-puck2_main-processor/ChibiOS//os/ext/CMSIS/include/arm_math.h:
+
+../../lib/e-puck2_main-processor/ChibiOS//os/ext/CMSIS/include/core_cm4.h:
+
+c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\string.h:
+
+c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\xlocale.h:
+
+c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\strings.h:
+
+c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\sys\string.h:
+
 coordinate_motor.h:
+
+process_image.h:

@@ -9,19 +9,17 @@
 #include <audio/play_melody.h>
 #include <process_image.h>
 #include <motors.h>
-
-#define WHEEL_DISTANCE      5.35f    //cm
-#define PERIMETER_EPUCK     (M_PI * WHEEL_DISTANCE)
-#define NSTEP_ONE_TURN      1000 // number of step for 1 turn of the motor
-#define WHEEL_PERIMETER     13 // [cm]
+#include <coordinate_motor.h>
 
 static float distance_cm = 0;
-static float l_tot = 0;
+static float l_tot = 20;
 static uint16_t line_position = IMAGE_BUFFER_SIZE/2;	//middle
 
-static float robot_x;
-static float robot_y;
+static float robot_x = 0;
+static float robot_y = 0;
 
+static float x = 0;
+static float y = 0;
 
 //semaphore
 static BSEMAPHORE_DECL(image_ready_sem, TRUE);
@@ -150,6 +148,8 @@ static THD_FUNCTION(ProcessImage, arg) {
     while(1){
     	//waits until an image has been captured
         chBSemWait(&image_ready_sem);
+        //if(image_rdy == 0){
+
 		//gets the pointer to the array filled with the last image in RGB565    
 		img_buff_ptr = dcmi_get_last_image_ptr();
 
@@ -201,18 +201,20 @@ static THD_FUNCTION(ProcessImage, arg) {
 		float moy_g = (float)vert/10;
 		float moy_b = (float)bleu/10;
 
+		// conversion from rgb565 to rgb888
+
 		uint8_t rouge_888 = moy_r/31 * 255;
 		uint8_t vert_888 = moy_g/63 * 255;
 		uint8_t bleu_888 = moy_b/31 * 255;
 
-		float x = convert_rgb_cm(rouge_888);
-		float y = convert_rgb_cm(bleu_888);
+		x = convert_rgb_cm(rouge_888);
+		y = convert_rgb_cm(bleu_888);
 
-		goto_position(x,y);
 
+		//goto_position(x,y);
 		if(send_to_computer){
 			//sends to the computer the image
-			SendUint8ToComputer(imageG, IMAGE_BUFFER_SIZE);
+			//SendUint8ToComputer(imageG, IMAGE_BUFFER_SIZE);
 			//chprintf((BaseSequentialStream *)&SD3, "moy_r =  %f \r", (float)moy_r);
 			//chprintf((BaseSequentialStream *)&SD3, "moy_b =  %i \r", (float)moy_b);
 			//if(moy_r <= 75){
@@ -228,22 +230,48 @@ static THD_FUNCTION(ProcessImage, arg) {
 		}
 		//invert the bool
 		send_to_computer = !send_to_computer;
+		//chBSemSignal(&color_ready_sem);
+		//break;
+
+		//image_rdy = 1;
+
+		chThdSleepMilliseconds(1000);
+		//chThdYield();
     }
+    //}
 }
 
-float convert_rgb_cm(uint8_t c){
+float convert_rgb_cm(uint8_t c){  //take a rgb888 value and turn it into a coordinate on a map
 	float x = l_tot*(float)c/255;
 	return x;
 }
 
-float convert_cm_step(float x){
-	int16_t x_step;
-	x_step = x * WHEEL_PERIMETER / NSTEP_ONE_TURN;
-	return x_step;
-}
-
 float get_distance_cm(void){
 	return distance_cm;
+}
+
+float get_robot_pos_x(void){
+	return robot_x;
+}
+
+float get_robot_pos_y(void){
+	return robot_y;
+}
+
+void set_robot_pos_x(float x){
+	robot_x = x;
+}
+
+void set_robot_pos_y(float y){
+	robot_y = y;
+}
+
+float get_pos_x(void){
+	return x;
+}
+
+float get_pos_y(void){
+	return y;
 }
 
 uint16_t get_line_position(void){
@@ -253,76 +281,4 @@ uint16_t get_line_position(void){
 void process_image_start(void){
 	chThdCreateStatic(waProcessImage, sizeof(waProcessImage), NORMALPRIO, ProcessImage, NULL);
 	chThdCreateStatic(waCaptureImage, sizeof(waCaptureImage), NORMALPRIO, CaptureImage, NULL);
-}
-
-void motor_set_pos(float pos_r, float pos_l, float vit_r, float vit_l){
-	float pos_step_r = convert_cm_step(pos_r);
-	float pos_step_l = convert_cm_step(pos_l);
-	float vit_step_r = convert_cm_step(vit_r);
-	float vit_step_l = convert_cm_step(vit_l);
-
-	while(right_motor_get_pos() <= pos_step_r && left_motor_get_pos() <= pos_step_l){
-		right_motor_set_speed(vit_step_r);
-		left_motor_set_speed(vit_step_l);
-	}
-	right_motor_set_speed(0);
-	left_motor_set_speed(0);
-
-	right_motor_set_pos(0);
-	left_motor_set_pos(0);
-}
-
-void goto_position(float x,float y){
-
-	// + + = forward
-	// - - = backward
-	// + - = ccw
-	// - + = cw
-
-	if(robot_x == 0 && robot_y == 0){
-		motor_set_pos(y,y,5,5);
-	    motor_set_pos(PERIMETER_EPUCK/4, PERIMETER_EPUCK/4, -5, 5);
-		motor_set_pos(x,x,5,5);
-
-		robot_x = x;
-		robot_y = y;
-
-	} else if(x < robot_x && y < robot_y){
-		motor_set_pos(PERIMETER_EPUCK/4,PERIMETER_EPUCK/4,5,-5);
-		motor_set_pos(robot_y - y,robot_y - y,5,5);
-		motor_set_pos(PERIMETER_EPUCK/4,PERIMETER_EPUCK/4,-5,5);
-		motor_set_pos(robot_x - x,robot_x - x,5,5);
-		motor_set_pos(PERIMETER_EPUCK/2,PERIMETER_EPUCK/2,-5,5);
-
-		robot_x = x;
-		robot_y = y;
-
-	} else if(x > robot_x && y < robot_y){
-		motor_set_pos(PERIMETER_EPUCK/4,PERIMETER_EPUCK/4,5,-5);
-		motor_set_pos(robot_y - y,robot_y - y,5,5);
-		motor_set_pos(PERIMETER_EPUCK/4,PERIMETER_EPUCK/4,5,-5);
-		motor_set_pos(x - robot_x,x - robot_x,5,5);
-
-		robot_x = x;
-		robot_y = y;
-
-	} else if(x < robot_x && y > robot_y){
-		motor_set_pos(PERIMETER_EPUCK/4,PERIMETER_EPUCK/4,-5,5);
-		motor_set_pos(y - robot_y,y - robot_y,5,5);
-		motor_set_pos(PERIMETER_EPUCK/4,PERIMETER_EPUCK/4,-5,5);
-		motor_set_pos(robot_x - x,robot_x - x,5,5);
-		motor_set_pos(PERIMETER_EPUCK/2,PERIMETER_EPUCK/2,-5,5);
-
-		robot_x = x;
-		robot_y = y;
-
-	} else if(x > robot_x && y > robot_y){
-		motor_set_pos(PERIMETER_EPUCK/4,PERIMETER_EPUCK/4,-5,5);
-		motor_set_pos(y - robot_y,y - robot_y,5,5);
-		motor_set_pos(PERIMETER_EPUCK/4,PERIMETER_EPUCK/4,5,-5);
-		motor_set_pos(x - robot_x,x - robot_x,5,5);
-
-		robot_x = x;
-		robot_y = y;
-	}
 }

@@ -19,6 +19,7 @@
 #include <audio/audio_thread.h>
 #include <audio/play_melody.h>
 #include <spi_comm.h>
+#include "coordinate_motor.h"
 messagebus_t bus;
 MUTEX_DECL(bus_lock);
 CONDVAR_DECL(bus_condvar);
@@ -65,8 +66,9 @@ int main(void)
 	imu_start();
 	//playMelodyStart();
 	//stars the threads for the pi regulator and the processing of the image
-	pi_regulator_start();
+	//pi_regulator_start();
 	process_image_start();
+	//motor_coordinate_start();
 	calibrate_gyro();
 	dac_start();
 	playMelodyStart();

@@ -154,7 +154,7 @@ build/obj/main.o: main.c \
  ../../lib/e-puck2_main-processor/src/sensors/mpu9250_registers.h \
  ../../lib/e-puck2_main-processor/src/leds.h \
  ../../lib/e-puck2_main-processor/src/audio/audio_thread.h \
- ../../lib/e-puck2_main-processor/src/spi_comm.h
+ ../../lib/e-puck2_main-processor/src/spi_comm.h coordinate_motor.h
 
 c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\stdio.h:
 
@@ -473,3 +473,5 @@ process_image.h:
 ../../lib/e-puck2_main-processor/src/audio/audio_thread.h:
 
 ../../lib/e-puck2_main-processor/src/spi_comm.h:
+
+coordinate_motor.h:
