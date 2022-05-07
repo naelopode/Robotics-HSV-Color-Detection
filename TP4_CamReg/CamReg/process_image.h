@@ -12,7 +12,10 @@ uint16_t get_line_position(void);
 void process_image_start(void);
 float convert_rgb_cm(uint8_t c);
 
+<<<<<<< HEAD
 //static BSEMAPHORE_DECL(color_ready_sem, TRUE);
 //static bool image_rdy = 0;
+=======
+>>>>>>> Camera_fork
 
 #endif /* PROCESS_IMAGE_H */
