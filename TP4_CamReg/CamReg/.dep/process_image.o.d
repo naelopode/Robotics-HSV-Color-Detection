@@ -139,7 +139,8 @@ build/obj/process_image.o: process_image.c \
  c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\alloca.h \
  ../../lib/e-puck2_main-processor/src/camera/po8030.h \
  ../../lib/e-puck2_main-processor/src/audio/play_melody.h process_image.h \
- ../../lib/e-puck2_main-processor/src/motors.h coordinate_motor.h
+ ../../lib/e-puck2_main-processor/src/motors.h coordinate_motor.h \
+ ../../lib/e-puck2_main-processor/src/button.h
 
 ../../lib/e-puck2_main-processor/ChibiOS//os/rt/include/ch.h:
 
@@ -430,3 +431,5 @@ process_image.h:
 ../../lib/e-puck2_main-processor/src/motors.h:
 
 coordinate_motor.h:
+
+../../lib/e-puck2_main-processor/src/button.h:

@@ -68,7 +68,7 @@ int main(void)
 	//stars the threads for the pi regulator and the processing of the image
 	//pi_regulator_start();
 	process_image_start();
-	//motor_coordinate_start();
+	motor_coordinate_start();
 	calibrate_gyro();
 	dac_start();
 	playMelodyStart();

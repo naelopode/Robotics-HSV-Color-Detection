@@ -144,7 +144,8 @@ build/obj/coordinate_motor.o: coordinate_motor.c \
  c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\xlocale.h \
  c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\strings.h \
  c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\gcc-arm-none-eabi-7-2017-q4-major-win32\arm-none-eabi\include\sys\string.h \
- coordinate_motor.h process_image.h
+ coordinate_motor.h process_image.h \
+ ../../lib/e-puck2_main-processor/src/button.h
 
 ../../lib/e-puck2_main-processor/ChibiOS//os/rt/include/ch.h:
 
@@ -443,3 +444,5 @@ c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\
 coordinate_motor.h:
 
 process_image.h:
+
+../../lib/e-puck2_main-processor/src/button.h:

@@ -10,6 +10,7 @@
 #include <process_image.h>
 #include <motors.h>
 #include <coordinate_motor.h>
+#include <button.h>
 
 static float distance_cm = 0;
 static float l_tot = 20;
@@ -148,7 +149,6 @@ static THD_FUNCTION(ProcessImage, arg) {
     while(1){
     	//waits until an image has been captured
         chBSemWait(&image_ready_sem);
-        //if(image_rdy == 0){
 
 		//gets the pointer to the array filled with the last image in RGB565    
 		img_buff_ptr = dcmi_get_last_image_ptr();
@@ -166,7 +166,7 @@ static THD_FUNCTION(ProcessImage, arg) {
 		}
 
 		//search for a line in the image and gets its width in pixels
-		lineWidth = extract_line_width(imageR);
+		lineWidth = extract_line_width(imageG);
 
 		//converts the width into a distance between the robot and the camera
 //		if(lineWidth){
@@ -180,7 +180,7 @@ static THD_FUNCTION(ProcessImage, arg) {
 		//	}
 		//}
 
-		float main_colors[];
+/*		float main_colors[];
 		float local_mean = 0;
 		float local_nb = 0;
 		//float moy_b = 0;
@@ -192,8 +192,8 @@ static THD_FUNCTION(ProcessImage, arg) {
 				main_colors[sizeof(main_colors)]=local_mean;
 				local_nb=0;
 			}
-
-			moy_r = moy_r + imageR[i];
+*/
+			//moy_r = moy_r + imageR[i];
 			//moy_b = moy_b + imageB[i];
 		//}
 		//moy_r = moy_r/IMAGE_BUFFER_SIZE;
@@ -221,7 +221,6 @@ static THD_FUNCTION(ProcessImage, arg) {
 		x = convert_rgb_cm(rouge_888);
 		y = convert_rgb_cm(bleu_888);
 
-
 		//goto_position(x,y);
 		if(send_to_computer){
 			//sends to the computer the image
@@ -238,18 +237,15 @@ static THD_FUNCTION(ProcessImage, arg) {
 			chprintf((BaseSequentialStream *)&SD3, " R= %i", rouge_888);
 			chprintf((BaseSequentialStream *)&SD3, " G= %i", vert_888);
 			chprintf((BaseSequentialStream *)&SD3, " B= %i\n", bleu_888);
+			//chprintf((BaseSequentialStream *)&SD3, "état =  %i \n", state);
 		}
 		//invert the bool
 		send_to_computer = !send_to_computer;
 		//chBSemSignal(&color_ready_sem);
-		//break;
-
-		//image_rdy = 1;
 
 		chThdSleepMilliseconds(1000);
 		//chThdYield();
     }
-    //}
 }
 
 float convert_rgb_cm(uint8_t c){  //take a rgb888 value and turn it into a coordinate on a map
