@@ -11,7 +11,6 @@
 #include <motors.h>
 #include <camera/po8030.h>
 #include <chprintf.h>
-#include <pi_regulator.h>
 #include <process_image.h>
 #include <sensors/proximity.h>
 #include <sensors/imu.h>
@@ -59,20 +58,13 @@ int main(void)
     //starts the camera
     dcmi_start();
 	po8030_start();
-	proximity_start();
 	//inits the motors
-	motors_init();
-	clear_leds();
 	imu_start();
 	//playMelodyStart();
 	//stars the threads for the pi regulator and the processing of the image
-	//pi_regulator_start();
 	process_image_start();
-	motor_coordinate_start();
-	calibrate_gyro();
-	dac_start();
-	playMelodyStart();
 	spi_comm_start();
+	clear_leds();
     /* Infinite loop. */
     while (1) {
     	//waits 1 second
