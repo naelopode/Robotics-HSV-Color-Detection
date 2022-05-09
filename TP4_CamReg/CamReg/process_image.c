@@ -12,9 +12,7 @@
 #include <coordinate_motor.h>
 #include <button.h>
 
-static float distance_cm = 0;
-static float l_tot = 20;
-static uint16_t line_position = IMAGE_BUFFER_SIZE/2;	//middle
+static float l_tot = 24.2;
 
 static float robot_x = 0;
 static float robot_y = 0;
@@ -55,10 +53,10 @@ static THD_FUNCTION(CaptureImage, arg) {
 		//waits for the capture to be done
 		wait_image_ready();
 		//signals an image has been captured
+
 		chBSemSignal(&image_ready_sem);
     }
 }
-
 
 static THD_WORKING_AREA(waProcessImage, 1024);
 static THD_FUNCTION(ProcessImage, arg) {
@@ -68,7 +66,6 @@ static THD_FUNCTION(ProcessImage, arg) {
     static struct RGB_l color_rgb_long =  {0,0,0};
     uint8_t compte_mesures = NB_MESURES;
 	uint8_t *img_buff_ptr;
-
 
     while(1){
     	//waits until an image has been captured
@@ -119,12 +116,19 @@ static THD_FUNCTION(ProcessImage, arg) {
 //			chprintf((BaseSequentialStream *)&SD3, "%f \n", color_hsv.saturation);
 //			chprintf((BaseSequentialStream *)&SD3, "%f \n\r", color_hsv.value);
 
+			x = color_hsv.saturation*cos(color_hsv.hue);
+			y = color_hsv.saturation*sin(color_hsv.hue);
+
+			x = convert_coord_cm(x);
+			y = convert_coord_cm(y);
 
 			//RESET VALUE FOR NEXT ROUND OF MEASURMENTS
 			color_rgb_long.red=0;
 			color_rgb_long.green=0;
 			color_rgb_long.blue=0;
 			compte_mesures = NB_MESURES;
+			chThdSleepMilliseconds(1000);
+			//chThdYield();
 		}
 		//*img_buff_ptr = NULL;
     }
@@ -141,7 +145,6 @@ void led_match(struct RGB_n input){
 					  (uint8_t) (input.blue*RGB_MAX_INTENSITY));
 	}
 }
-
 
 void RGB2HSV(struct RGB_n input, struct HSV *output){
 	float cmax = max(input.red, input.green, input.blue); // maximum of r, g, b
@@ -170,6 +173,35 @@ float max(float a, float b, float c) {
 
 float min(float a, float b, float c) {
    return ((a < b)? (a < c ? a : c) : (b < c ? b : c));
+}
+
+float get_robot_pos_x(void){
+	return robot_x;
+}
+
+float get_robot_pos_y(void){
+	return robot_y;
+}
+
+void set_robot_pos_x(float x){
+	robot_x = x;
+}
+
+void set_robot_pos_y(float y){
+	robot_y = y;
+}
+
+float get_pos_x(void){
+	return x;
+}
+
+float get_pos_y(void){
+	return y;
+}
+
+float convert_coord_cm(float coord){  //take a rgb888 value and turn it into a coordinate on a map
+	float x = l_tot*coord/100;
+	return x;
 }
 
 void process_image_start(void){

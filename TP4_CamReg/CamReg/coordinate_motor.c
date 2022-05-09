@@ -31,9 +31,6 @@ void motor_set_pos(float pos_r, float pos_l, float vit_r, float vit_l){
 	float vit_step_r = convert_cm_step(vit_r);
 	float vit_step_l = convert_cm_step(vit_l);
 
-	chprintf((BaseSequentialStream *)&SD3, "vit_r = %f \n", vit_step_r);
-	chprintf((BaseSequentialStream *)&SD3, "vit_l = %f \n", vit_step_l);
-
 	// the step counter of the robot stops at a given value wich corresponds to a given position
 	if(pos_step_r != 0 && pos_step_l != 0){
 		if(vit_step_r > 0 && vit_step_l > 0){
@@ -43,17 +40,13 @@ void motor_set_pos(float pos_r, float pos_l, float vit_r, float vit_l){
 			}
 		} else if(vit_step_r > 0 && vit_step_l < 0){
 			left_motor_set_pos(pos_step_l);
-			float pos_l = left_motor_get_pos();
 			while(right_motor_get_pos() <= pos_step_r && left_motor_get_pos() >= 0){
-				chprintf((BaseSequentialStream *)&SD3, "pos_l = %f \n", pos_l);
 				right_motor_set_speed(vit_step_r);
 				left_motor_set_speed(vit_step_l);
 			}
 		} else if(vit_step_r < 0 && vit_step_l > 0){
 			right_motor_set_pos(pos_step_r);
-			float pos_r = right_motor_get_pos();
 			while(right_motor_get_pos() >= 0 && left_motor_get_pos() <= pos_step_l){
-				chprintf((BaseSequentialStream *)&SD3, "pos_r = %f \n", pos_r);
 				right_motor_set_speed(vit_step_r);
 				left_motor_set_speed(vit_step_l);
 			}
@@ -84,7 +77,7 @@ void motor_set_pos_2(float pos_r, float pos_l, float vit_r, float vit_l){
 */
 //void goto_position(float x,float y){ // take coordinates in cm as input to move the robot
 
-static THD_WORKING_AREA(waMotorCoordinate, 512);
+static THD_WORKING_AREA(waMotorCoordinate, 1024);
 static THD_FUNCTION(MotorCoordinate, arg) {
 
     chRegSetThreadName(__FUNCTION__);
@@ -105,12 +98,20 @@ static THD_FUNCTION(MotorCoordinate, arg) {
 		float x = get_pos_x();
 		float y = get_pos_y();
 
+		chprintf((BaseSequentialStream *)&SD3, "x = %f \n", x);
+		chprintf((BaseSequentialStream *)&SD3, "y = %f \n", y);
+
+		chprintf((BaseSequentialStream *)&SD3, "robot_x = %f \n", robot_x);
+		chprintf((BaseSequentialStream *)&SD3, "robot_y = %f \n", robot_y);
+
 		float delta_x = abs(robot_x-x);
 		float delta_y = abs(robot_y-y);
 
 		chprintf((BaseSequentialStream *)&SD3, " delta_x = %f \n", delta_x);
-
-		if(x < robot_x && y < robot_y){
+		if(x == robot_x && y == robot_y){
+			right_motor_set_speed(0);
+			left_motor_set_speed(0);
+    	} else if(x < robot_x && y < robot_y){
 			motor_set_pos(PERIMETER_EPUCK/4,PERIMETER_EPUCK/4,8,-8);
 			motor_set_pos(delta_x,delta_x,8,8);
 			motor_set_pos(PERIMETER_EPUCK/4,PERIMETER_EPUCK/4,8,-8);
@@ -148,12 +149,12 @@ static THD_FUNCTION(MotorCoordinate, arg) {
 			set_robot_pos_x(x);
 			set_robot_pos_y(y);
 		}
-		chThdSleepUntilWindowed(time, time + MS2ST(5000));
+		chThdSleepUntilWindowed(time, time + MS2ST(10000));
 		//chThdYield();
 		//chThdSleepMilliseconds(1000);
 	}
 }
 
 void motor_coordinate_start(void){
-	chThdCreateStatic(waMotorCoordinate, sizeof(waMotorCoordinate), NORMALPRIO+1, MotorCoordinate, NULL);
+	chThdCreateStatic(waMotorCoordinate, sizeof(waMotorCoordinate), NORMALPRIO, MotorCoordinate, NULL);
 }

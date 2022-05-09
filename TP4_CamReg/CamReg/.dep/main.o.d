@@ -147,8 +147,7 @@ build/obj/main.o: main.c \
  ../../lib/e-puck2_main-processor/src/motors.h \
  ../../lib/e-puck2_main-processor/src/camera/po8030.h \
  ../../lib/e-puck2_main-processor/ChibiOS//os/hal/lib/streams/chprintf.h \
- pi_regulator.h process_image.h \
- ../../lib/e-puck2_main-processor/src/sensors/proximity.h \
+ process_image.h ../../lib/e-puck2_main-processor/src/sensors/proximity.h \
  ../../lib/e-puck2_main-processor/src/sensors/imu.h \
  ../../lib/e-puck2_main-processor/src/sensors/mpu9250.h \
  ../../lib/e-puck2_main-processor/src/sensors/mpu9250_registers.h \
@@ -455,8 +454,6 @@ c:\users\sprun\onedrive\bureau\ecole\ epfl\ba6\roboitique\eclipse_e-puck2\tools\
 ../../lib/e-puck2_main-processor/src/camera/po8030.h:
 
 ../../lib/e-puck2_main-processor/ChibiOS//os/hal/lib/streams/chprintf.h:
-
-pi_regulator.h:
 
 process_image.h:
 

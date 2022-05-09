@@ -59,9 +59,11 @@ int main(void)
     dcmi_start();
 	po8030_start();
 	//inits the motors
+	motors_init();
 	imu_start();
 	//playMelodyStart();
 	//stars the threads for the pi regulator and the processing of the image
+	motor_coordinate_start();
 	process_image_start();
 	spi_comm_start();
 	clear_leds();

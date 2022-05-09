@@ -39,21 +39,19 @@ typedef struct HSV{ //HSV color
 	float value;
 }color_hsv;
 void get_color(void);
-float get_distance_cm(void);
 float get_robot_pos_x(void);
 float get_robot_pos_y(void);
 void set_robot_pos_x(float x);
 void set_robot_pos_y(float y);
 float get_pos_x(void);
 float get_pos_y(void);
-uint16_t get_line_position(void);
 void process_image_start(void);
 void led_match(struct RGB_n input);
 void RGB2HSV(struct RGB_n input, struct HSV *output);
 float max(float a, float b, float c);
 float min(float a, float b, float c);
 void print_color(struct RGB_n input_RGB, struct HSV input_HSV, color_type format);
-float convert_rgb_cm(uint8_t c);
+float convert_coord_cm(float coord);
 
 //static BSEMAPHORE_DECL(color_ready_sem, TRUE);
 
