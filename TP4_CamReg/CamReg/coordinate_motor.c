@@ -16,8 +16,8 @@
 #define NSTEP_ONE_TURN      1000 // number of step for 1 turn of the motor
 #define WHEEL_PERIMETER     13 // [cm]
 
-uint16_t convert_cm_step(float x){  //convert cm into steps
-	uint16_t x_step;
+int16_t convert_cm_step(float x){  //convert cm into steps
+	int16_t x_step;
 	x_step = x * NSTEP_ONE_TURN / WHEEL_PERIMETER;
 	return x_step;
 }
@@ -31,6 +31,9 @@ void motor_set_pos(float pos_r, float pos_l, float vit_r, float vit_l){
 	float vit_step_r = convert_cm_step(vit_r);
 	float vit_step_l = convert_cm_step(vit_l);
 
+	chprintf((BaseSequentialStream *)&SD3, "vit_r = %f \n", vit_step_r);
+	chprintf((BaseSequentialStream *)&SD3, "vit_l = %f \n", vit_step_l);
+
 	// the step counter of the robot stops at a given value wich corresponds to a given position
 	if(pos_step_r != 0 && pos_step_l != 0){
 		if(vit_step_r > 0 && vit_step_l > 0){
@@ -40,13 +43,17 @@ void motor_set_pos(float pos_r, float pos_l, float vit_r, float vit_l){
 			}
 		} else if(vit_step_r > 0 && vit_step_l < 0){
 			left_motor_set_pos(pos_step_l);
+			float pos_l = left_motor_get_pos();
 			while(right_motor_get_pos() <= pos_step_r && left_motor_get_pos() >= 0){
+				chprintf((BaseSequentialStream *)&SD3, "pos_l = %f \n", pos_l);
 				right_motor_set_speed(vit_step_r);
 				left_motor_set_speed(vit_step_l);
 			}
 		} else if(vit_step_r < 0 && vit_step_l > 0){
 			right_motor_set_pos(pos_step_r);
+			float pos_r = right_motor_get_pos();
 			while(right_motor_get_pos() >= 0 && left_motor_get_pos() <= pos_step_l){
+				chprintf((BaseSequentialStream *)&SD3, "pos_r = %f \n", pos_r);
 				right_motor_set_speed(vit_step_r);
 				left_motor_set_speed(vit_step_l);
 			}
@@ -92,67 +99,56 @@ static THD_FUNCTION(MotorCoordinate, arg) {
         time = chVTGetSystemTime();
 		//chBSemWait(&color_ready_sem);
 
-    	chprintf((BaseSequentialStream *)&SD3, "Je suis dans le thread motor \n");
-
 		float robot_x = get_robot_pos_x();
 		float robot_y = get_robot_pos_y();
 
 		float x = get_pos_x();
 		float y = get_pos_y();
 
-		if(robot_x == 0 && robot_y == 0){
-			motor_set_pos(y,y,8,8);
-			motor_set_pos(PERIMETER_EPUCK/4, PERIMETER_EPUCK/4, -8, 8);
-			motor_set_pos(x,x,8,8);
+		float delta_x = abs(robot_x-x);
+		float delta_y = abs(robot_y-y);
 
-			set_robot_pos_x(x);
-			set_robot_pos_y(y);
+		chprintf((BaseSequentialStream *)&SD3, " delta_x = %f \n", delta_x);
 
-		} else if(x < robot_x && y < robot_y){
+		if(x < robot_x && y < robot_y){
 			motor_set_pos(PERIMETER_EPUCK/4,PERIMETER_EPUCK/4,8,-8);
-			motor_set_pos(robot_y - y,robot_y - y,8,8);
-			motor_set_pos(PERIMETER_EPUCK/4,PERIMETER_EPUCK/4,-8,8);
-			motor_set_pos(robot_x - x,robot_x - x,8,8);
+			motor_set_pos(delta_x,delta_x,8,8);
+			motor_set_pos(PERIMETER_EPUCK/4,PERIMETER_EPUCK/4,8,-8);
+			motor_set_pos(delta_y,delta_y,8,8);
 			motor_set_pos(PERIMETER_EPUCK/2,PERIMETER_EPUCK/2,-8,8);
 
 			set_robot_pos_x(x);
 			set_robot_pos_y(y);
 
 		} else if(x > robot_x && y < robot_y){
-			motor_set_pos(PERIMETER_EPUCK/4,PERIMETER_EPUCK/4,8,-8);
-			motor_set_pos(robot_y - y,robot_y - y,8,8);
-			motor_set_pos(PERIMETER_EPUCK/4,PERIMETER_EPUCK/4,8,-8);
-			motor_set_pos(x - robot_x,x - robot_x,8,8);
+			motor_set_pos(PERIMETER_EPUCK/4,PERIMETER_EPUCK/4,-8,8);
+			motor_set_pos(delta_x,delta_x,8,8);
+			motor_set_pos(PERIMETER_EPUCK/4,PERIMETER_EPUCK/4,-8,8);
+			motor_set_pos(delta_y,delta_y,8,8);
+			motor_set_pos(PERIMETER_EPUCK/2,PERIMETER_EPUCK/2,-8,8);
 
 			set_robot_pos_x(x);
 			set_robot_pos_y(y);
 
 		} else if(x < robot_x && y > robot_y){
+			motor_set_pos(PERIMETER_EPUCK/4,PERIMETER_EPUCK/4,8,-8);
+			motor_set_pos(delta_x,delta_x,8,8);
 			motor_set_pos(PERIMETER_EPUCK/4,PERIMETER_EPUCK/4,-8,8);
-			motor_set_pos(y - robot_y,y - robot_y,8,8);
-			motor_set_pos(PERIMETER_EPUCK/4,PERIMETER_EPUCK/4,-8,8);
-			motor_set_pos(robot_x - x,robot_x - x,8,8);
-			motor_set_pos(PERIMETER_EPUCK/2,PERIMETER_EPUCK/2,-8,8);
+			motor_set_pos(delta_y,delta_y,8,8);
 
 			set_robot_pos_x(x);
 			set_robot_pos_y(y);
 
 		} else if(x > robot_x && y > robot_y){
 			motor_set_pos(PERIMETER_EPUCK/4,PERIMETER_EPUCK/4,-8,8);
-			motor_set_pos(y - robot_y,y - robot_y,8,8);
+			motor_set_pos(delta_x,delta_x,8,8);
 			motor_set_pos(PERIMETER_EPUCK/4,PERIMETER_EPUCK/4,8,-8);
-			motor_set_pos(x - robot_x,x - robot_x,8,8);
+			motor_set_pos(delta_y,delta_y,8,8);
 
 			set_robot_pos_x(x);
 			set_robot_pos_y(y);
 		}
-	    //image_rdy = 0;
-		if(button_get_state() == 1){
-			chThdSleepUntilWindowed(time, time + MS2ST(2500));
-		} else {
-			right_motor_set_speed(0);
-			left_motor_set_speed(0);
-		}
+		chThdSleepUntilWindowed(time, time + MS2ST(5000));
 		//chThdYield();
 		//chThdSleepMilliseconds(1000);
 	}
