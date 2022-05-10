@@ -148,10 +148,13 @@ static THD_FUNCTION(MotorCoordinate, arg) {
 
 			set_robot_pos_x(x);
 			set_robot_pos_y(y);
+		} else {
+			right_motor_set_speed(0);
+			left_motor_set_speed(0);
 		}
-		chThdSleepUntilWindowed(time, time + MS2ST(10000));
-		//chThdYield();
-		//chThdSleepMilliseconds(1000);
+
+		//chThdSleepUntilWindowed(time, time + MS2ST(5000));
+		chThdSleepMilliseconds(5000);
 	}
 }
 

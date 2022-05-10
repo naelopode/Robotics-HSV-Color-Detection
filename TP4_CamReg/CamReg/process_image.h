@@ -53,6 +53,6 @@ float min(float a, float b, float c);
 void print_color(struct RGB_n input_RGB, struct HSV input_HSV, color_type format);
 float convert_coord_cm(float coord);
 
-//static BSEMAPHORE_DECL(color_ready_sem, TRUE);
+static BSEMAPHORE_DECL(color_ready_sem, TRUE);
 
 #endif /* PROCESS_IMAGE_H */

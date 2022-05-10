@@ -115,20 +115,20 @@ static THD_FUNCTION(ProcessImage, arg) {
 //			chprintf((BaseSequentialStream *)&SD3, "%f \n", color_hsv.hue);
 //			chprintf((BaseSequentialStream *)&SD3, "%f \n", color_hsv.saturation);
 //			chprintf((BaseSequentialStream *)&SD3, "%f \n\r", color_hsv.value);
+			if(button_get_state()==1){
+				x = color_hsv.saturation*cos(color_hsv.hue);
+				y = color_hsv.saturation*sin(color_hsv.hue);
 
-			x = color_hsv.saturation*cos(color_hsv.hue);
-			y = color_hsv.saturation*sin(color_hsv.hue);
-
-			x = convert_coord_cm(x);
-			y = convert_coord_cm(y);
-
+				x = convert_coord_cm(x);
+				y = convert_coord_cm(y);
+			}
 			//RESET VALUE FOR NEXT ROUND OF MEASURMENTS
 			color_rgb_long.red=0;
 			color_rgb_long.green=0;
 			color_rgb_long.blue=0;
 			compte_mesures = NB_MESURES;
-			chThdSleepMilliseconds(1000);
-			//chThdYield();
+				//chBSemSignal(&color_ready_sem);
+				chThdSleepMilliseconds(2000);
 		}
 		//*img_buff_ptr = NULL;
     }
