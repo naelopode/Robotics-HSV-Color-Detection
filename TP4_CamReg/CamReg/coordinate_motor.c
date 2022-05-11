@@ -4,18 +4,24 @@
 #include <usbcfg.h>
 #include <chprintf.h>
 #include <math.h>
-
 #include <motors.h>
 #include <arm_math.h>
 #include "coordinate_motor.h"
-#include "process_image.h"
 #include <button.h>
+#include "capture_color.h"
 
 #define WHEEL_DISTANCE      5.35f    //cm
 #define PERIMETER_EPUCK     (M_PI * WHEEL_DISTANCE)
 #define NSTEP_ONE_TURN      1000 // number of step for 1 turn of the motor
 #define WHEEL_PERIMETER     13 // [cm]
 
+
+// semaphore
+static BSEMAPHORE_DECL(move_and_track, FALSE);
+
+void set_semaphore_move_and_track(){
+	chBSemSignal(&move_and_track);
+}
 int16_t convert_cm_step(float x){  //convert cm into steps
 	int16_t x_step;
 	x_step = x * NSTEP_ONE_TURN / WHEEL_PERIMETER;
@@ -90,7 +96,7 @@ static THD_FUNCTION(MotorCoordinate, arg) {
 
     while(1){
         time = chVTGetSystemTime();
-		//chBSemWait(&color_ready_sem);
+		chBSemWait(&move_and_track);
 
 		float robot_x = get_robot_pos_x();
 		float robot_y = get_robot_pos_y();
@@ -98,16 +104,16 @@ static THD_FUNCTION(MotorCoordinate, arg) {
 		float x = get_pos_x();
 		float y = get_pos_y();
 
-		chprintf((BaseSequentialStream *)&SD3, "x = %f \n", x);
-		chprintf((BaseSequentialStream *)&SD3, "y = %f \n", y);
-
-		chprintf((BaseSequentialStream *)&SD3, "robot_x = %f \n", robot_x);
-		chprintf((BaseSequentialStream *)&SD3, "robot_y = %f \n", robot_y);
+//		chprintf((BaseSequentialStream *)&SD3, "x = %f \n", x);
+//		chprintf((BaseSequentialStream *)&SD3, "y = %f \n", y);
+//
+//		chprintf((BaseSequentialStream *)&SD3, "robot_x = %f \n", robot_x);
+//		chprintf((BaseSequentialStream *)&SD3, "robot_y = %f \n", robot_y);
 
 		float delta_x = abs(robot_x-x);
 		float delta_y = abs(robot_y-y);
 
-		chprintf((BaseSequentialStream *)&SD3, " delta_x = %f \n", delta_x);
+//		chprintf((BaseSequentialStream *)&SD3, " delta_x = %f \n", delta_x);
 		if(x == robot_x && y == robot_y){
 			right_motor_set_speed(0);
 			left_motor_set_speed(0);

@@ -11,9 +11,11 @@ DEF = -DSTM32F407xx
 GLOBAL_PATH = ../../lib/e-puck2_main-processor
 
 #Source files to include
-CSRC += ./main.c \
-		./process_image.c \
+CSRC += ./usr_interface.c \
+		./led_anim.c \
+		./capture_color.c \
 		./coordinate_motor.c \
+		./main.c \
 				
 #Header folders to include
 INCDIR += 

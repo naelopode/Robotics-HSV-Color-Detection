@@ -11,25 +11,20 @@
 #include <motors.h>
 #include <camera/po8030.h>
 #include <chprintf.h>
-#include <process_image.h>
 #include <sensors/proximity.h>
 #include <sensors/imu.h>
 #include <leds.h>
 #include <audio/audio_thread.h>
 #include <audio/play_melody.h>
 #include <spi_comm.h>
+#include "capture_color.h"
 #include "coordinate_motor.h"
+#include "led_anim.h"
+#include "usr_interface.h"
 messagebus_t bus;
 MUTEX_DECL(bus_lock);
 CONDVAR_DECL(bus_condvar);
 
-
-void SendUint8ToComputer(uint8_t* data, uint16_t size) 
-{
-	chSequentialStreamWrite((BaseSequentialStream *)&SD3, (uint8_t*)"START", 5);
-	chSequentialStreamWrite((BaseSequentialStream *)&SD3, (uint8_t*)&size, sizeof(uint16_t));
-	chSequentialStreamWrite((BaseSequentialStream *)&SD3, (uint8_t*)data, size);
-}
 
 static void serial_start(void)
 {
@@ -46,6 +41,8 @@ static void serial_start(void)
 
 int main(void)
 {
+	enum FSM current_state;
+	current_state = INIT;
     halInit();
     chSysInit();
     mpu_init();
@@ -66,11 +63,33 @@ int main(void)
 	motor_coordinate_start();
 	process_image_start();
 	spi_comm_start();
-	clear_leds();
+	led_anim_start();
+	usr_interface_start();
+	current_state = INIT+1; //jump to next state
     /* Infinite loop. */
     while (1) {
-    	//waits 1 second
-        chThdSleepMilliseconds(1000);
+       	switch (current_state){
+    		case (WAIT_INPUT):
+				chprintf((BaseSequentialStream *)&SD3, "wait for input \r");
+    			set_led_state(TURN_CW);
+    			wait_button_pressed();
+    			current_state = CAPTURE_COLOR;
+    			chprintf((BaseSequentialStream *)&SD3, "button pushed \r");
+    			break;
+    		case (CAPTURE_COLOR):
+				chprintf((BaseSequentialStream *)&SD3, "enter capture color \r");
+				set_semaphore_capture();
+				wait_capture_ready();
+				current_state = MOVE_AND_TRACK;
+    			break;
+    		case (MOVE_AND_TRACK):
+				chprintf((BaseSequentialStream *)&SD3, "enter move and track \r");
+				set_semaphore_move_and_track();
+    			break;
+    		case (OBJ_DETECTED):
+    			break;
+    	}
+       	chThdSleepMilliseconds(1000);
     }
 }
 
