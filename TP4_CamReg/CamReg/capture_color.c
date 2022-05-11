@@ -25,8 +25,8 @@ static float y = 0;
 
 //semaphore
 static BSEMAPHORE_DECL(image_ready_sem, TRUE);
-static BSEMAPHORE_DECL(capture_start, FALSE);
-static BSEMAPHORE_DECL(capture_finished,FALSE);
+static BSEMAPHORE_DECL(capture_start, TRUE);
+static BSEMAPHORE_DECL(capture_finished,TRUE);
 /*
  *  Returns the line's width extracted from the image buffer given
  *  Returns 0 if line not found
@@ -74,9 +74,11 @@ static THD_FUNCTION(ProcessImage, arg) {
 	//DONE_CAPTURE = FALSE;
     while(1){
     	//waits until an image has been captured
+    	chBSemWait(&capture_start);
+    	set_led_state(TURN_CCW);
         chBSemWait(&image_ready_sem);
-        chBSemWait(&capture_start);
-        set_led_state(TURN_CCW);
+
+
         //set_led_state(TURN_CW);
 		//gets the pointer to the array filled with the last image in RGB565    
 		img_buff_ptr = dcmi_get_last_image_ptr();
@@ -93,7 +95,7 @@ static THD_FUNCTION(ProcessImage, arg) {
 		compte_mesures -=1;
 		if(compte_mesures==0){
 
-			struct RGB_n color_rgb_n = {(float)color_rgb_long.red/((float)(NB_MESURES*IMAGE_BUFFER_SIZE*IMAGE_BUFFER_SIZE*31)),
+			color_rgb_n_t color_rgb_n = {(float)color_rgb_long.red/((float)(NB_MESURES*IMAGE_BUFFER_SIZE*IMAGE_BUFFER_SIZE*31)),
 								 	 	(float)color_rgb_long.green/((float)(NB_MESURES*IMAGE_BUFFER_SIZE*IMAGE_BUFFER_SIZE*63)),
 										(float)color_rgb_long.blue/((float)(NB_MESURES*IMAGE_BUFFER_SIZE*IMAGE_BUFFER_SIZE*31))};
 
@@ -102,16 +104,18 @@ static THD_FUNCTION(ProcessImage, arg) {
 			//led_match(color_rgb_n);
 			set_led_color(color_rgb_n);
 			set_led_state(ALL_ON_COLOR);
+			chprintf((BaseSequentialStream *)&SD3, "set all color ! \r");
+			RGB2HSV(color_rgb_n, &color_hsv);
 
-			//RGB2HSV(color_rgb_n, &color_hsv);
-
-			print_color(color_rgb_n, color_hsv, RGB);
+			//print_color(color_rgb_n, color_hsv, RGB);
 			//if(button_get_state()==1){
-			x = color_hsv.saturation*cos(color_hsv.hue);
+			x = color_hsv.saturation*cos(color_hsv.hue); //TODO mettre ça dans les coordinate
 			y = color_hsv.saturation*sin(color_hsv.hue);
 
 			x = convert_coord_cm(x);
 			y = convert_coord_cm(y);
+			chprintf((BaseSequentialStream *)&SD3, "x = %f \n", x);
+			chprintf((BaseSequentialStream *)&SD3, "y = %f \n", y);
 			//}
 			//RESET VALUE FOR NEXT ROUND OF MEASURMENTS
 			color_rgb_long.red=0;
@@ -137,7 +141,7 @@ void get_color(){
 
 }
 
-void led_match(struct RGB_n input){
+void led_match(color_rgb_n_t input){
 	for (uint8_t i = 0; i<NUM_RGB_LED;++i){
 		set_rgb_led(i,(uint8_t) (input.red*RGB_MAX_INTENSITY),
 					  (uint8_t) (input.green*RGB_MAX_INTENSITY),
@@ -145,7 +149,7 @@ void led_match(struct RGB_n input){
 	}
 }
 
-void RGB2HSV(struct RGB_n input, struct HSV *output){
+void RGB2HSV(color_rgb_n_t input, struct HSV *output){
 	float cmax = max(input.red, input.green, input.blue); // maximum of r, g, b
 	float cmin = min(input.red, input.green, input.blue); // minimum of r, g, b
 	float diff = cmax-cmin; // diff of cmax and cmin.
@@ -208,7 +212,7 @@ void process_image_start(void){
 	chThdCreateStatic(waCaptureImage, sizeof(waCaptureImage), NORMALPRIO+1, CaptureImage, NULL);
 }
 
-void print_color(struct RGB_n input_RGB, struct HSV input_HSV, color_type format){
+void print_color(color_rgb_n_t input_RGB, struct HSV input_HSV, color_type format){
 	switch (format){
 		case RGB:
 			chprintf((BaseSequentialStream *)&SD3, "A%u\n", (uint8_t) (input_RGB.red*255.));
@@ -224,6 +228,7 @@ void print_color(struct RGB_n input_RGB, struct HSV input_HSV, color_type format
 }
 
 void set_semaphore_capture(){
+	chprintf((BaseSequentialStream *)&SD3, "semaphore capture started \r");
 	chBSemSignal(&capture_start);
 }
 

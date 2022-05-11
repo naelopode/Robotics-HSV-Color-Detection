@@ -8,12 +8,13 @@
 #ifndef GLOBAL_H_
 #define GLOBAL_H_
 
+#define THRESHOLD_PROXIMITY 75
 
-//typedef struct RGB_n{ //normalised RGB
-//	float red;
-//	float green;
-//	float blue;
-//}color_rgb_n;
+typedef struct { //normalised RGB
+	float red;
+	float green;
+	float blue;
+}color_rgb_n_t;
 
 
 #endif /* GLOBAL_H_ */

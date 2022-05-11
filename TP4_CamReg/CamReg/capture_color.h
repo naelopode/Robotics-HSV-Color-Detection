@@ -3,7 +3,7 @@
 
 #define MAX_RGB_VALUE 255 //max value of RGB
 #define NB_MESURES 10
-
+#include "global.h"
 
 typedef enum { //available color type for output
 	RGB,
@@ -16,11 +16,11 @@ typedef struct RGB_l{ //RGB as usigned long int as it can reach 256�000
 	unsigned long int blue;
 }color_rgb_long;
 
-typedef struct RGB_n{ //normalised RGB
-	float red;
-	float green;
-	float blue;
-}color_rgb_n;
+//typedef struct RGB_n{ //normalised RGB
+//	float red;
+//	float green;
+//	float blue;
+//}color_rgb_n;
 
 typedef struct HSV{ //HSV color
 	float hue;
@@ -38,11 +38,11 @@ void set_robot_pos_y(float y);
 float get_pos_x(void);
 float get_pos_y(void);
 void process_image_start(void);
-void led_match(struct RGB_n input);
-void RGB2HSV(struct RGB_n input, struct HSV *output);
+void led_match(color_rgb_n_t);
+void RGB2HSV(color_rgb_n_t, struct HSV *output);
 float max(float a, float b, float c);
 float min(float a, float b, float c);
-void print_color(struct RGB_n input_RGB, struct HSV input_HSV, color_type format);
+void print_color(color_rgb_n_t, struct HSV input_HSV, color_type format);
 float convert_coord_cm(float coord);
 void set_semaphore_capture(void);
 int get_done_capture(void);
