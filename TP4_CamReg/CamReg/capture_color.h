@@ -28,22 +28,19 @@ typedef struct HSV{ //HSV color
 	float value;
 }color_hsv;
 
-
-
-void get_color(void);
-float get_robot_pos_x(void);
-float get_robot_pos_y(void);
-void set_robot_pos_x(float x);
-void set_robot_pos_y(float y);
-float get_pos_x(void);
-float get_pos_y(void);
+//void get_color(void);
+//float get_robot_pos_x(void);
+//float get_robot_pos_y(void);
+//
+//float get_pos_x(void);
+//float get_pos_y(void);
 void process_image_start(void);
 void led_match(color_rgb_n_t);
 void RGB2HSV(color_rgb_n_t, struct HSV *output);
 float max(float a, float b, float c);
 float min(float a, float b, float c);
 void print_color(color_rgb_n_t, struct HSV input_HSV, color_type format);
-float convert_coord_cm(float coord);
+
 void set_semaphore_capture(void);
 int get_done_capture(void);
 void wait_capture_ready(void);

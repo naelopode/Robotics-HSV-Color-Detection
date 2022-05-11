@@ -15,13 +15,7 @@
 #include "global.h"
 //static bool DONE_CAPTURE = FALSE;
 
-static float l_tot = 24.2;
 
-static float robot_x = 0;
-static float robot_y = 0;
-
-static float x = 0;
-static float y = 0;
 
 //semaphore
 static BSEMAPHORE_DECL(image_ready_sem, TRUE);
@@ -109,14 +103,13 @@ static THD_FUNCTION(ProcessImage, arg) {
 
 			//print_color(color_rgb_n, color_hsv, RGB);
 			//if(button_get_state()==1){
-			x = color_hsv.saturation*cos(color_hsv.hue); //TODO mettre ça dans les coordinate
-			y = color_hsv.saturation*sin(color_hsv.hue);
+			set_robot_pos_x(color_hsv.saturation*cos(color_hsv.hue)); //TODO mettre ça dans les coordinate
+			set_robot_pos_y(color_hsv.saturation*sin(color_hsv.hue));
 
-			x = convert_coord_cm(x);
-			y = convert_coord_cm(y);
-			chprintf((BaseSequentialStream *)&SD3, "x = %f \n", x);
-			chprintf((BaseSequentialStream *)&SD3, "y = %f \n", y);
-			//}
+			//x = convert_coord_cm(x);
+			//y = convert_coord_cm(y);
+			//chprintf((BaseSequentialStream *)&SD3, "x = %f \n", x);
+			//chprintf((BaseSequentialStream *)&SD3, "y = %f \n", y);
 			//RESET VALUE FOR NEXT ROUND OF MEASURMENTS
 			color_rgb_long.red=0;
 			color_rgb_long.green=0;
@@ -178,34 +171,25 @@ float min(float a, float b, float c) {
    return ((a < b)? (a < c ? a : c) : (b < c ? b : c));
 }
 
-float get_robot_pos_x(void){
-	return robot_x;
-}
+//float get_robot_pos_x(void){
+//	return robot_x;
+//}
+//
+//float get_robot_pos_y(void){
+//	return robot_y;
+//}
+//
+//
+//
+//float get_pos_x(void){
+//	return x;
+//}
+//
+//float get_pos_y(void){
+//	return y;
+//}
 
-float get_robot_pos_y(void){
-	return robot_y;
-}
 
-void set_robot_pos_x(float x){
-	robot_x = x;
-}
-
-void set_robot_pos_y(float y){
-	robot_y = y;
-}
-
-float get_pos_x(void){
-	return x;
-}
-
-float get_pos_y(void){
-	return y;
-}
-
-float convert_coord_cm(float coord){  //take x and y value and convert it
-	float x = l_tot*coord/100;
-	return x;
-}
 
 void process_image_start(void){
 	chThdCreateStatic(waProcessImage, sizeof(waProcessImage), NORMALPRIO+1, ProcessImage, NULL);

@@ -15,6 +15,13 @@
 #define NSTEP_ONE_TURN      1000 // number of step for 1 turn of the motor
 #define WHEEL_PERIMETER     13 // [cm]
 
+static float l_tot = 24.2;
+
+static float robot_x = 0;
+static float robot_y = 0;
+
+static float x = 0;
+static float y = 0;
 
 // semaphore
 static BSEMAPHORE_DECL(move_and_track, TRUE);
@@ -45,21 +52,21 @@ void motor_set_pos(float pos_r, float pos_l, float vit_r, float vit_l){
 			while(right_motor_get_pos() <= pos_step_r && left_motor_get_pos() <= pos_step_l){
 				right_motor_set_speed(vit_step_r);
 				left_motor_set_speed(vit_step_l);
-				chThdSleepMilliseconds(50);
+				//chThdSleepMilliseconds(50);
 			}
 		} else if(vit_step_r > 0 && vit_step_l < 0){
 			left_motor_set_pos(pos_step_l);
 			while(right_motor_get_pos() <= pos_step_r && left_motor_get_pos() >= 0){
 				right_motor_set_speed(vit_step_r);
 				left_motor_set_speed(vit_step_l);
-				chThdSleepMilliseconds(50);
+				//chThdSleepMilliseconds(50);
 			}
 		} else if(vit_step_r < 0 && vit_step_l > 0){
 			right_motor_set_pos(pos_step_r);
 			while(right_motor_get_pos() >= 0 && left_motor_get_pos() <= pos_step_l){
 				right_motor_set_speed(vit_step_r);
 				left_motor_set_speed(vit_step_l);
-				chThdSleepMilliseconds(50);
+				//chThdSleepMilliseconds(50);
 			}
 		}
 	}
@@ -90,12 +97,6 @@ static THD_FUNCTION(MotorCoordinate, arg) {
         time = chVTGetSystemTime();
 
 
-		float robot_x = get_robot_pos_x();
-		float robot_y = get_robot_pos_y();
-
-		float x = get_pos_x();
-		float y = get_pos_y();
-
 		//chprintf((BaseSequentialStream *)&SD3, "x = %f \n", x);
 		//chprintf((BaseSequentialStream *)&SD3, "y = %f \n", y);
 //
@@ -116,8 +117,8 @@ static THD_FUNCTION(MotorCoordinate, arg) {
 			motor_set_pos(delta_y,delta_y,8,8);
 			motor_set_pos(PERIMETER_EPUCK/2,PERIMETER_EPUCK/2,-8,8);
 
-			set_robot_pos_x(x);
-			set_robot_pos_y(y);
+			robot_x=x;
+			robot_y=y;
 
 		} else if(x > robot_x && y < robot_y){
 			motor_set_pos(PERIMETER_EPUCK/4,PERIMETER_EPUCK/4,-8,8);
@@ -126,8 +127,8 @@ static THD_FUNCTION(MotorCoordinate, arg) {
 			motor_set_pos(delta_y,delta_y,8,8);
 			motor_set_pos(PERIMETER_EPUCK/2,PERIMETER_EPUCK/2,-8,8);
 
-			set_robot_pos_x(x);
-			set_robot_pos_y(y);
+			robot_x=x;
+			robot_y=y;
 
 		} else if(x < robot_x && y > robot_y){
 			motor_set_pos(PERIMETER_EPUCK/4,PERIMETER_EPUCK/4,8,-8);
@@ -135,8 +136,8 @@ static THD_FUNCTION(MotorCoordinate, arg) {
 			motor_set_pos(PERIMETER_EPUCK/4,PERIMETER_EPUCK/4,-8,8);
 			motor_set_pos(delta_y,delta_y,8,8);
 
-			set_robot_pos_x(x);
-			set_robot_pos_y(y);
+			robot_x=x;
+			robot_y=y;
 
 		} else if(x > robot_x && y > robot_y){
 			motor_set_pos(PERIMETER_EPUCK/4,PERIMETER_EPUCK/4,-8,8);
@@ -144,8 +145,8 @@ static THD_FUNCTION(MotorCoordinate, arg) {
 			motor_set_pos(PERIMETER_EPUCK/4,PERIMETER_EPUCK/4,8,-8);
 			motor_set_pos(delta_y,delta_y,8,8);
 
-			set_robot_pos_x(x);
-			set_robot_pos_y(y);
+			robot_x=x;
+			robot_y=y;
 		} else {
 			right_motor_set_speed(0);
 			left_motor_set_speed(0);
@@ -157,26 +158,37 @@ static THD_FUNCTION(MotorCoordinate, arg) {
 }
 
 static THD_WORKING_AREA(waMotorPause, 512);
-static THD_FUNCTION(Pause, arg) {
+static THD_FUNCTION(MotorPause, arg) {
 	chBSemWait(&pause_move);
-
 	right_motor_set_speed(0);
 	left_motor_set_speed(0);
-
 	chThdSleepMilliseconds(100);
 }
 
 
 
 void motor_coordinate_start(void){
-	chThdCreateStatic(waMotorPause, sizeof(waMotorPause), HIGHPRIO, Pause, NULL);
-	chThdCreateStatic(waMotorCoordinate, sizeof(waMotorCoordinate), NORMALPRIO, MotorCoordinate, NULL);
+	chThdCreateStatic(waMotorPause, sizeof(waMotorPause), NORMALPRIO, MotorPause, NULL);
+	chThdCreateStatic(waMotorCoordinate, sizeof(waMotorCoordinate), LOWPRIO, MotorCoordinate, NULL);
 }
 
 void set_semaphore_pause(void){
-	//chBSemSignal(&pause_move);
+	chBSemSignal(&pause_move);
 }
 
 void reset_semaphore_pause(void){
-	//chBSemReset(&pause_move,TRUE);
+	chBSemReset(&pause_move,TRUE);
+}
+
+void set_robot_pos_x(float x_input){
+	x = convert_coord_cm(x_input);
+}
+
+void set_robot_pos_y(float y_input){
+	y = convert_coord_cm(y_input);
+}
+
+float convert_coord_cm(float coord){  //take x and y value and convert it
+	float x = l_tot*coord/100;
+	return x;
 }
