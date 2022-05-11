@@ -18,7 +18,7 @@
 
 // semaphore
 static BSEMAPHORE_DECL(move_and_track, TRUE);
-static BSEMAPHORE_DECL(pause_move, TRUE);
+static BSEMAPHORE_DECL(pause_move, FALSE);
 
 void set_semaphore_move_and_track(){
 	chBSemSignal(&move_and_track);
@@ -85,6 +85,7 @@ static THD_FUNCTION(MotorCoordinate, arg) {
     while(1){
     	//chprintf((BaseSequentialStream *)&SD3, "step1\n");
     	chBSemWait(&move_and_track);
+
     	//chprintf((BaseSequentialStream *)&SD3, "step2\n");
         time = chVTGetSystemTime();
 
@@ -158,18 +159,24 @@ static THD_FUNCTION(MotorCoordinate, arg) {
 static THD_WORKING_AREA(waMotorPause, 512);
 static THD_FUNCTION(Pause, arg) {
 	chBSemWait(&pause_move);
+
 	right_motor_set_speed(0);
 	left_motor_set_speed(0);
+
 	chThdSleepMilliseconds(100);
 }
 
 
 
 void motor_coordinate_start(void){
-	chThdCreateStatic(waMotorPause, sizeof(waMotorPause), NORMALPRIO+1, Pause, NULL);
+	chThdCreateStatic(waMotorPause, sizeof(waMotorPause), HIGHPRIO, Pause, NULL);
 	chThdCreateStatic(waMotorCoordinate, sizeof(waMotorCoordinate), NORMALPRIO, MotorCoordinate, NULL);
 }
 
 void set_semaphore_pause(void){
-	chBSemSignal(&pause_move);
+	//chBSemSignal(&pause_move);
+}
+
+void reset_semaphore_pause(void){
+	//chBSemReset(&pause_move,TRUE);
 }

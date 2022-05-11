@@ -8,3 +8,7 @@ TP5_Noisy/Noisy/libssp.a
 TP5_Noisy/Noisy/build/
 
 TP4_CamReg/CamReg/build/
+
+TP4_CamReg/CamReg/.dep/
+
+TP4_CamReg/CamReg/.settings/
