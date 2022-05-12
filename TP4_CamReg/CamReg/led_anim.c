@@ -72,9 +72,8 @@ static THD_FUNCTION(LedAnim, arg) {
     			chThdSleepMilliseconds(500);
 				break;
     		case (BLINK):
-				chprintf((BaseSequentialStream *)&SD3, "BLINK\n");
-				//clear_leds();
-    			chThdSleepMilliseconds(500);
+				clear_leds();
+    			chThdSleepMilliseconds(200);
     			set_led(0, 1);
     			set_led(1, 1);
     			set_led(2, 1);
@@ -83,7 +82,7 @@ static THD_FUNCTION(LedAnim, arg) {
     			set_rgb_led(1, RGB_MAX_INTENSITY,0,0);
     			set_rgb_led(2, RGB_MAX_INTENSITY,0,0);
     			set_rgb_led(3, RGB_MAX_INTENSITY,0,0);
-
+    			chThdSleepMilliseconds(200);
 //    	    	for (uint8_t i = 0; i<NUM_RGB_LED; ++i){
 //    	    		chprintf((BaseSequentialStream *)&SD3, "HERE\n");
 //    	    		set_led(i, 1);

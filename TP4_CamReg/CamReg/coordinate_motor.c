@@ -10,13 +10,14 @@
 #include <button.h>
 #include "capture_color.h"
 #include "detect_obj.h"
+#include "led_anim.h"
 
 #define WHEEL_DISTANCE      5.35f    //cm
 #define PERIMETER_EPUCK     (M_PI * WHEEL_DISTANCE)
 #define NSTEP_ONE_TURN      1000 // number of step for 1 turn of the motor
 #define WHEEL_PERIMETER     13 // [cm]
 
-static float l_tot = 24.2;
+static float l_tot = 48.4;
 
 static float robot_x = 0;
 static float robot_y = 0;
