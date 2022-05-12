@@ -133,52 +133,38 @@ static THD_FUNCTION(MotorCoordinate, arg) {
 		float phase_robot = 0;
 		float norm = sqrt(x*x + y*y);
 		float norm_robot = sqrt(robot_x*robot_x + robot_y*robot_y);
+		float norm_tot;
 
-		if(robot_x > 0){
-			phase_robot = atan2(robot_y,robot_x);
-		} else if(robot_x < 0 && robot_y >= 0){
-			phase_robot = (atan2(robot_y,robot_x) + M_PI);
-		} else if(robot_x < 0 && robot_y < 0){
-			phase_robot = (atan2(robot_y,robot_x) - M_PI);
-		}
+		float alpha = 0;
+		float phi = 0;
 
-		if(x > 0){
-			phase = atan2(y,x);
-		} else if(x < 0 && y >= 0){
-			phase = (atan2(y,x) + M_PI);
-		} else if(x < 0 && y < 0){
-			phase = (atan2(y,x) - M_PI);
-		}
-		*/
-		//phase = phase * 180 / M_PI;
-		//phase_robot = phase_robot * 180 / M_PI;
+		alpha  = acos((x*robot_x + y*robot_y)/(norm*norm_robot));
+
+		norm_tot = sqrt(norm*norm + norm_robot*norm_robot - 2*norm*norm_robot*cos(alpha));
+		phi = 180 - asin(sin(alpha)*norm/norm_tot);
 
 		float delta_x = abs(robot_x-x);
 		float delta_y = abs(robot_y-y);
-		/*
-		float delta_phase = phase - phase_robot;
-		float norm_tot = sqrt(delta_x*delta_x+delta_y*delta_y);
 
-		delta_phase = delta_phase*PERIMETER_EPUCK/360;
+		//delta_phase = delta_phase*PERIMETER_EPUCK/360;
 
-//		chprintf((BaseSequentialStream *)&SD3, " delta_x = %f \n", delta_x);
 		if(x == robot_x && y == robot_y){
 			right_motor_set_speed(0);
 			left_motor_set_speed(0);
-		} else if(delta_phase >= 0){
-			motor_set_pos(delta_phase,delta_phase,-8,8);
+		} else if(alpha >= 0){
+			//motor_set_pos(delta_phase,delta_phase,-8,8);
 			motor_set_pos(norm_tot,norm_tot,8,8);
 
 			robot_x = x;
 			robot_y = y;
-		} else if(delta_phase < 0){
-			motor_set_pos(-delta_phase,-delta_phase,8,-8);
+		} else if(alpha < 0){
+			//motor_set_pos(-delta_phase,-delta_phase,8,-8);
 			motor_set_pos(norm_tot,norm_tot,8,8);
 
 			robot_x = x;
 			robot_y = y;
-		}
-		*/
+		} */
+		/*
 		if(x == robot_x && y == robot_y){
 			right_motor_set_speed(0);
 			left_motor_set_speed(0);
@@ -222,7 +208,7 @@ static THD_FUNCTION(MotorCoordinate, arg) {
 		} else {
 			right_motor_set_speed(0);
 			left_motor_set_speed(0);
-		}
+		} */
 		chBSemSignal(&move_finished);
 		//chThdSleepUntilWindowed(time, time + MS2ST(5000));
 		chThdSleepMilliseconds(1000);
