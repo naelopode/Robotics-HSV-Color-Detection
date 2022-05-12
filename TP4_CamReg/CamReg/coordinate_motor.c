@@ -17,7 +17,7 @@
 #define NSTEP_ONE_TURN      1000 // number of step for 1 turn of the motor
 #define WHEEL_PERIMETER     13 // [cm]
 
-static float l_tot = 48.4;
+static float r_cercle = 48.4;
 
 static float robot_x = 0;
 static float robot_y = 0;
@@ -209,7 +209,7 @@ void set_robot_pos_y(float y_input){
 }
 
 float convert_coord_cm(float coord){  //take x and y value and convert it
-	float x = l_tot*coord/100;
+	float x = r_cercle*coord/100;
 	return x;
 }
 
