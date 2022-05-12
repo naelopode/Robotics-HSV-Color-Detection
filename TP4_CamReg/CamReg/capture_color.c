@@ -103,8 +103,12 @@ static THD_FUNCTION(ProcessImage, arg) {
 
 			//print_color(color_rgb_n, color_hsv, RGB);
 			//if(button_get_state()==1){
-			set_robot_pos_x(color_hsv.saturation*cos(color_hsv.hue)); //TODO mettre ça dans les coordinate
-			set_robot_pos_y(color_hsv.saturation*sin(color_hsv.hue));
+
+			color_hsv.hue = -color_hsv.hue + 90; //HSV to polar circle
+			fmod(color_hsv.hue,360);
+
+			set_robot_pos_x(color_hsv.saturation*cos(color_hsv.hue*M_PI/180)); //TODO mettre ça dans les coordinate
+			set_robot_pos_y(color_hsv.saturation*sin(color_hsv.hue*M_PI/180));
 
 			//x = convert_coord_cm(x);
 			//y = convert_coord_cm(y);
