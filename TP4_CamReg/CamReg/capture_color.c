@@ -122,7 +122,7 @@ static THD_FUNCTION(ProcessImage, arg) {
 			chBSemSignal(&capture_finished);
 			//set_led_state(NO_LEDS);
 			chThdYield();
-		} else{
+		} else {
 			chBSemSignal(&capture_start); //Continue to capture if we still need to
 		}
 		//*img_buff_ptr = NULL;

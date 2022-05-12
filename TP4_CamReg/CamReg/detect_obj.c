@@ -23,7 +23,7 @@
 
 #include "global.h"
 //semaphore
-bool DETECT = FALSE;
+bool DETECT_ON = FALSE;
 bool detected_flag = FALSE;
 static THD_WORKING_AREA(wadetect_obj, 512);
 static THD_FUNCTION(detect_obj, arg) {
@@ -33,11 +33,11 @@ static THD_FUNCTION(detect_obj, arg) {
     //chprintf((BaseSequentialStream *)&SD3, "step2\n");
     bool detected = FALSE;
     while(1){
-    	if (DETECT){
+    	if (DETECT_ON){
         	detected = FALSE;
         	for (uint8_t i = 0; i <PROXIMITY_NB_CHANNELS;++i){
         		if(get_prox(i)>THRESHOLD_PROXIMITY){
-        			//chprintf((BaseSequentialStream *)&SD3, "detected\n");
+        			chprintf((BaseSequentialStream *)&SD3, "value of proximity %i\n", get_prox(i));
         			//set_semaphore_pause();
         			set_led_state(BLINK);
         			detected_flag=TRUE;
@@ -59,11 +59,11 @@ static THD_FUNCTION(detect_obj, arg) {
 void detect_obj_start(void){
 	proximity_start();
 	calibrate_ir();
-	chThdCreateStatic(wadetect_obj, sizeof(wadetect_obj), NORMALPRIO, detect_obj, NULL);
+	chThdCreateStatic(wadetect_obj, sizeof(wadetect_obj), NORMALPRIO+1, detect_obj, NULL);
 }
 
 void set_detect_on(void){
-	DETECT = TRUE;
+	DETECT_ON = TRUE;
 }
 
 uint8_t get_detected_flag(void){

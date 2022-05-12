@@ -90,10 +90,17 @@ int main(void)
 				}
     			break;
     		case (OBJ_DETECTED):
+				chprintf((BaseSequentialStream *)&SD3, "enter obj detection \r");
+    			pause_motor();
+				set_detect_on();
+    			if (!get_detected_flag()){
+    				resume_motor();
+    				current_state=MOVE_AND_TRACK;
+    			}
 				//chprintf((BaseSequentialStream *)&SD3, "HERE\n");
     			break;
     	}
-       	chThdSleepMilliseconds(1000);
+       	chThdSleepMilliseconds(400);
     }
 }
 

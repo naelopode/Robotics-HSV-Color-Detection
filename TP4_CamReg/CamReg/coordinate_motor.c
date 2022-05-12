@@ -23,6 +23,7 @@ static float robot_y = 0;
 static float x = 0;
 static float y = 0;
 
+bool flag_pause_motor = FALSE;
 // semaphore
 static BSEMAPHORE_DECL(move_and_track, TRUE);
 static BSEMAPHORE_DECL(pause_move, FALSE);
@@ -50,23 +51,40 @@ void motor_set_pos(float pos_r, float pos_l, float vit_r, float vit_l){
 	if(pos_step_r != 0 && pos_step_l != 0){
 		if(vit_step_r > 0 && vit_step_l > 0){
 			while(right_motor_get_pos() <= pos_step_r && left_motor_get_pos() <= pos_step_l){
-				right_motor_set_speed(vit_step_r);
-				left_motor_set_speed(vit_step_l);
+				if (flag_pause_motor){
+					right_motor_set_speed(0);
+					left_motor_set_speed(0);
+				} else {
+					right_motor_set_speed(vit_step_r);
+					left_motor_set_speed(vit_step_l);
+				}
+
 				//chThdSleepMilliseconds(50);
 			}
 		} else if(vit_step_r > 0 && vit_step_l < 0){
 			left_motor_set_pos(pos_step_l);
 			while(right_motor_get_pos() <= pos_step_r && left_motor_get_pos() >= 0){
-				right_motor_set_speed(vit_step_r);
-				left_motor_set_speed(vit_step_l);
+				if (flag_pause_motor){
+					right_motor_set_speed(0);
+					left_motor_set_speed(0);
+				} else {
+					right_motor_set_speed(vit_step_r);
+					left_motor_set_speed(vit_step_l);
+				}
+
 				//chThdSleepMilliseconds(50);
 			}
 		} else if(vit_step_r < 0 && vit_step_l > 0){
 			right_motor_set_pos(pos_step_r);
 			while(right_motor_get_pos() >= 0 && left_motor_get_pos() <= pos_step_l){
-				right_motor_set_speed(vit_step_r);
-				left_motor_set_speed(vit_step_l);
-				//chThdSleepMilliseconds(50);
+				if (flag_pause_motor){
+					right_motor_set_speed(0);
+					left_motor_set_speed(0);
+				} else {
+					right_motor_set_speed(vit_step_r);
+					left_motor_set_speed(vit_step_l);
+				}
+
 			}
 		}
 	}
@@ -157,27 +175,27 @@ static THD_FUNCTION(MotorCoordinate, arg) {
 	}
 }
 
-static THD_WORKING_AREA(waMotorPause, 512);
-static THD_FUNCTION(MotorPause, arg) {
-	chBSemWait(&pause_move);
-	right_motor_set_speed(0);
-	left_motor_set_speed(0);
-	chThdSleepMilliseconds(100);
-}
+//static THD_WORKING_AREA(waMotorPause, 512);
+//static THD_FUNCTION(MotorPause, arg) {
+//	chBSemWait(&pause_move);
+//	right_motor_set_speed(0);
+//	left_motor_set_speed(0);
+//	chThdSleepMilliseconds(100);
+//}
 
 
 
 void motor_coordinate_start(void){
-	chThdCreateStatic(waMotorPause, sizeof(waMotorPause), NORMALPRIO, MotorPause, NULL);
+	//chThdCreateStatic(waMotorPause, sizeof(waMotorPause), NORMALPRIO, MotorPause, NULL);
 	chThdCreateStatic(waMotorCoordinate, sizeof(waMotorCoordinate), LOWPRIO, MotorCoordinate, NULL);
 }
 
-void set_semaphore_pause(void){
-	chBSemSignal(&pause_move);
+void pause_motor(void){
+	flag_pause_motor=TRUE;
 }
 
-void reset_semaphore_pause(void){
-	chBSemReset(&pause_move,TRUE);
+void resume_motor(void){
+	flag_pause_motor=FALSE;
 }
 
 void set_robot_pos_x(float x_input){
