@@ -17,7 +17,7 @@
 #define NSTEP_ONE_TURN      1000 // number of step for 1 turn of the motor
 #define WHEEL_PERIMETER     13 // [cm]
 
-static float r_cercle = 48.4;
+static float r_cercle = 37;
 
 static float robot_x = 0;
 static float robot_y = 0;
