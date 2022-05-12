@@ -25,6 +25,8 @@ static float robot_y = 0;
 static float x = 0;
 static float y = 0;
 
+static float angle = 0;
+
 bool flag_pause_motor = FALSE;
 // semaphore
 static BSEMAPHORE_DECL(move_and_track, TRUE);
@@ -128,42 +130,50 @@ static THD_FUNCTION(MotorCoordinate, arg) {
 
 		//chprintf((BaseSequentialStream *)&SD3, "robot_x = %f \n", robot_x);
 		//chprintf((BaseSequentialStream *)&SD3, "robot_y = %f \n", robot_y);
-		/*
+
         float phase = 0;
 		float phase_robot = 0;
 		float norm = sqrt(x*x + y*y);
 		float norm_robot = sqrt(robot_x*robot_x + robot_y*robot_y);
-		float norm_tot;
+		float norm_tot = 0;
 
 		float alpha = 0;
 		float phi = 0;
+		if(norm_robot != 0){
+			alpha  = acos((x*robot_x + y*robot_y)/(norm*norm_robot));
+			norm_tot = sqrt(norm*norm + norm_robot*norm_robot - 2*norm*norm_robot*cos(alpha));
+			phi = 180 - asin(sin(alpha)*norm/norm_tot);
+		} else {
+			phi = abs(angle);
+			norm_tot = sqrt(norm*norm + norm_robot*norm_robot - 2*norm*norm_robot*cos(alpha));
+		}
 
-		alpha  = acos((x*robot_x + y*robot_y)/(norm*norm_robot));
+		chprintf((BaseSequentialStream *)&SD3, "phi = %f \n", phi);
+		chprintf((BaseSequentialStream *)&SD3, "x = %f \n", x);
+		chprintf((BaseSequentialStream *)&SD3, "y = %f \n", y);
 
-		norm_tot = sqrt(norm*norm + norm_robot*norm_robot - 2*norm*norm_robot*cos(alpha));
-		phi = 180 - asin(sin(alpha)*norm/norm_tot);
-
-		float delta_x = abs(robot_x-x);
-		float delta_y = abs(robot_y-y);
+		//float delta_x = abs(robot_x-x);
+		//float delta_y = abs(robot_y-y);
 
 		//delta_phase = delta_phase*PERIMETER_EPUCK/360;
+		phi = phi*PERIMETER_EPUCK/360;
 
 		if(x == robot_x && y == robot_y){
 			right_motor_set_speed(0);
 			left_motor_set_speed(0);
 		} else if(alpha >= 0){
-			//motor_set_pos(delta_phase,delta_phase,-8,8);
+			motor_set_pos(phi,phi,-8,8);
 			motor_set_pos(norm_tot,norm_tot,8,8);
 
 			robot_x = x;
 			robot_y = y;
 		} else if(alpha < 0){
-			//motor_set_pos(-delta_phase,-delta_phase,8,-8);
+			motor_set_pos(-phi,-phi,8,-8);
 			motor_set_pos(norm_tot,norm_tot,8,8);
 
 			robot_x = x;
 			robot_y = y;
-		} */
+		}
 		/*
 		if(x == robot_x && y == robot_y){
 			right_motor_set_speed(0);
@@ -254,4 +264,8 @@ float convert_coord_cm(float coord){  //take x and y value and convert it
 void wait_move_finished(void){
 	chBSemWait(&move_finished);
 	//chBSemResetI(&move_finished,TRUE);
+}
+
+void set_angle(float angle_input){
+	angle = angle_input;
 }
