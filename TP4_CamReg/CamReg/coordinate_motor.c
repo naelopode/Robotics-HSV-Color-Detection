@@ -25,6 +25,9 @@ static float robot_y = 0; //could be a struct
 static float x = 0; //could be a struct
 static float y = 0; //could be a struct
 
+static float angle = 0;
+static float norm = 0;
+
 static bool flag_pause_motor = FALSE;
 // semaphore
 static BSEMAPHORE_DECL(move_and_track, TRUE);
@@ -118,6 +121,11 @@ static THD_FUNCTION(MotorCoordinate, arg) {
     	//chprintf((BaseSequentialStream *)&SD3, "step2\n");
         time = chVTGetSystemTime();
 
+        angle = -angle + 90; //HSV to polar circle
+        fmod(angle,360);
+
+        set_robot_pos_x(norm*cos(angle*M_PI/180)); //TODO mettre ça dans les coordinate
+        set_robot_pos_y(norm*sin(angle*M_PI/180));
 
 		//chprintf((BaseSequentialStream *)&SD3, "x = %f \n", x);
 		//chprintf((BaseSequentialStream *)&SD3, "y = %f \n", y);
@@ -256,4 +264,12 @@ float convert_coord_cm(float coord){  //take x and y value and convert it
 void wait_move_finished(void){
 	chBSemWait(&move_finished);
 	//chBSemResetI(&move_finished,TRUE);
+}
+
+void set_angle(float angle_input){
+	angle = angle_input;
+}
+
+void set_norm(float norm_input){
+	norm = norm_input;
 }
