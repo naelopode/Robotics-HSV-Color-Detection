@@ -9,6 +9,7 @@
 #include "coordinate_motor.h"
 #include <button.h>
 #include "capture_color.h"
+#include "detect_obj.h"
 
 #define WHEEL_DISTANCE      5.35f    //cm
 #define PERIMETER_EPUCK     (M_PI * WHEEL_DISTANCE)
@@ -26,7 +27,7 @@ static float y = 0;
 bool flag_pause_motor = FALSE;
 // semaphore
 static BSEMAPHORE_DECL(move_and_track, TRUE);
-static BSEMAPHORE_DECL(pause_move, FALSE);
+static BSEMAPHORE_DECL(move_finished, TRUE);
 
 void set_semaphore_move_and_track(){
 	chBSemSignal(&move_and_track);
@@ -51,7 +52,7 @@ void motor_set_pos(float pos_r, float pos_l, float vit_r, float vit_l){
 	if(pos_step_r != 0 && pos_step_l != 0){
 		if(vit_step_r > 0 && vit_step_l > 0){
 			while(right_motor_get_pos() <= pos_step_r && left_motor_get_pos() <= pos_step_l){
-				if (flag_pause_motor){
+				if (detected_obj()){
 					right_motor_set_speed(0);
 					left_motor_set_speed(0);
 				} else {
@@ -64,7 +65,7 @@ void motor_set_pos(float pos_r, float pos_l, float vit_r, float vit_l){
 		} else if(vit_step_r > 0 && vit_step_l < 0){
 			left_motor_set_pos(pos_step_l);
 			while(right_motor_get_pos() <= pos_step_r && left_motor_get_pos() >= 0){
-				if (flag_pause_motor){
+				if (detected_obj()){
 					right_motor_set_speed(0);
 					left_motor_set_speed(0);
 				} else {
@@ -77,7 +78,7 @@ void motor_set_pos(float pos_r, float pos_l, float vit_r, float vit_l){
 		} else if(vit_step_r < 0 && vit_step_l > 0){
 			right_motor_set_pos(pos_step_r);
 			while(right_motor_get_pos() >= 0 && left_motor_get_pos() <= pos_step_l){
-				if (flag_pause_motor){
+				if (detected_obj()){
 					right_motor_set_speed(0);
 					left_motor_set_speed(0);
 				} else {
@@ -169,9 +170,9 @@ static THD_FUNCTION(MotorCoordinate, arg) {
 			right_motor_set_speed(0);
 			left_motor_set_speed(0);
 		}
-
+		chBSemSignal(&move_finished);
 		//chThdSleepUntilWindowed(time, time + MS2ST(5000));
-		chThdSleepMilliseconds(100);
+		chThdSleepMilliseconds(1000);
 	}
 }
 
@@ -209,4 +210,8 @@ void set_robot_pos_y(float y_input){
 float convert_coord_cm(float coord){  //take x and y value and convert it
 	float x = l_tot*coord/100;
 	return x;
+}
+
+void wait_move_finished(void){
+	chBSemWait(&move_finished);
 }

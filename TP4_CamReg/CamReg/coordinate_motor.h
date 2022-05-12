@@ -11,4 +11,5 @@ void resume_motor(void);
 void set_robot_pos_x(float);
 void set_robot_pos_y(float);
 float convert_coord_cm(float);
+void wait_move_finished(void);
 #endif /* COORDINATE_MOTOR_H */

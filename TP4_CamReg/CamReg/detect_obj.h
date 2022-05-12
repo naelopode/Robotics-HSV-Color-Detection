@@ -11,6 +11,6 @@
 void detect_obj_start(void);
 void set_detect_on(void);
 uint8_t get_detected_flag(void);
-
+uint8_t detected_obj(void);
 
 #endif /* DETECT_OBJ_H_ */

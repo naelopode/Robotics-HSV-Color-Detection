@@ -25,41 +25,28 @@
 //semaphore
 bool DETECT_ON = FALSE;
 bool detected_flag = FALSE;
-static THD_WORKING_AREA(wadetect_obj, 512);
-static THD_FUNCTION(detect_obj, arg) {
-	//chprintf((BaseSequentialStream *)&SD3, "step1\n");
-    chRegSetThreadName(__FUNCTION__);
-    (void)arg;
-    //chprintf((BaseSequentialStream *)&SD3, "step2\n");
-    bool detected = FALSE;
-    while(1){
-    	if (DETECT_ON){
-        	detected = FALSE;
-        	for (uint8_t i = 0; i <PROXIMITY_NB_CHANNELS;++i){
-        		if(get_prox(i)>THRESHOLD_PROXIMITY){
-        			chprintf((BaseSequentialStream *)&SD3, "value of proximity %i\n", get_prox(i));
-        			//set_semaphore_pause();
-        			set_led_state(BLINK);
-        			detected_flag=TRUE;
-        			detected = TRUE;
-        		}
-        	}
-        	if (!detected){
-        		detected_flag=FALSE;
-        		//reset_semaphore_pause();
-    	}
 
-   	}
-    chThdSleepMilliseconds(100); //switch to windowed tWime ?
-    }
+uint8_t detected_obj(void){
+	bool detected = FALSE;
+	for (uint8_t i = 0; i <PROXIMITY_NB_CHANNELS;++i){
+		if(get_prox(i)>THRESHOLD_PROXIMITY){
+			chprintf((BaseSequentialStream *)&SD3, "value of proximity %i\n", get_prox(i));
+			//set_semaphore_pause();
+			detected = TRUE;
+			return TRUE;//detected_flag=TRUE;
+		}
+	}
+	if (!detected){
+		return FALSE;
+		detected_flag=FALSE;
+		//reset_semaphore_pause();
+	}
 }
-
 
 
 void detect_obj_start(void){
 	proximity_start();
 	calibrate_ir();
-	chThdCreateStatic(wadetect_obj, sizeof(wadetect_obj), NORMALPRIO+1, detect_obj, NULL);
 }
 
 void set_detect_on(void){

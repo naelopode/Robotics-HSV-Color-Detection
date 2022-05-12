@@ -8,7 +8,7 @@
 #ifndef GLOBAL_H_
 #define GLOBAL_H_
 
-#define THRESHOLD_PROXIMITY 1200
+#define THRESHOLD_PROXIMITY 700
 
 typedef struct { //normalised RGB
 	float red;

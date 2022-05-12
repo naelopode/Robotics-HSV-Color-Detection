@@ -63,9 +63,10 @@ int main(void)
 	spi_comm_start();
 	led_anim_start();
 	usr_interface_start();
+	detect_obj_start();
 	current_state = INIT+1; //jump to next state
     /* Infinite loop. */
-	detect_obj_start();
+
     while (1) {
        	switch (current_state){
     		case (WAIT_INPUT):
@@ -84,19 +85,21 @@ int main(void)
     		case (MOVE_AND_TRACK):
 				chprintf((BaseSequentialStream *)&SD3, "enter move and track \r");
 				set_semaphore_move_and_track();
-				set_detect_on();
-				if (get_detected_flag()){
-					current_state=OBJ_DETECTED;
-				}
+				//set_detect_on();
+//				if (get_detected_flag()){
+//					current_state=OBJ_DETECTED;
+//				}
+				wait_move_finished();
+				current_state=WAIT_INPUT;
     			break;
     		case (OBJ_DETECTED):
 				chprintf((BaseSequentialStream *)&SD3, "enter obj detection \r");
-    			pause_motor();
-				set_detect_on();
-    			if (!get_detected_flag()){
-    				resume_motor();
-    				current_state=MOVE_AND_TRACK;
-    			}
+//    			pause_motor();
+//				set_detect_on();
+//    			if (!get_detected_flag()){
+//    				resume_motor();
+//    				current_state=MOVE_AND_TRACK;
+//    			}
 				//chprintf((BaseSequentialStream *)&SD3, "HERE\n");
     			break;
     	}
