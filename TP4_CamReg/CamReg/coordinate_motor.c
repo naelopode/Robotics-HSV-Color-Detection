@@ -123,16 +123,62 @@ static THD_FUNCTION(MotorCoordinate, arg) {
         time = chVTGetSystemTime();
 
 
-		//chprintf((BaseSequentialStream *)&SD3, "x = %f \n", x);
-		//chprintf((BaseSequentialStream *)&SD3, "y = %f \n", y);
-//
+		chprintf((BaseSequentialStream *)&SD3, "x = %f \n", x);
+		chprintf((BaseSequentialStream *)&SD3, "y = %f \n", y);
+
 		//chprintf((BaseSequentialStream *)&SD3, "robot_x = %f \n", robot_x);
 		//chprintf((BaseSequentialStream *)&SD3, "robot_y = %f \n", robot_y);
+		/*
+        float phase = 0;
+		float phase_robot = 0;
+		float norm = sqrt(x*x + y*y);
+		float norm_robot = sqrt(robot_x*robot_x + robot_y*robot_y);
+
+		if(robot_x > 0){
+			phase_robot = atan2(robot_y,robot_x);
+		} else if(robot_x < 0 && robot_y >= 0){
+			phase_robot = (atan2(robot_y,robot_x) + M_PI);
+		} else if(robot_x < 0 && robot_y < 0){
+			phase_robot = (atan2(robot_y,robot_x) - M_PI);
+		}
+
+		if(x > 0){
+			phase = atan2(y,x);
+		} else if(x < 0 && y >= 0){
+			phase = (atan2(y,x) + M_PI);
+		} else if(x < 0 && y < 0){
+			phase = (atan2(y,x) - M_PI);
+		}
+		*/
+		//phase = phase * 180 / M_PI;
+		//phase_robot = phase_robot * 180 / M_PI;
 
 		float delta_x = abs(robot_x-x);
 		float delta_y = abs(robot_y-y);
+		/*
+		float delta_phase = phase - phase_robot;
+		float norm_tot = sqrt(delta_x*delta_x+delta_y*delta_y);
+
+		delta_phase = delta_phase*PERIMETER_EPUCK/360;
 
 //		chprintf((BaseSequentialStream *)&SD3, " delta_x = %f \n", delta_x);
+		if(x == robot_x && y == robot_y){
+			right_motor_set_speed(0);
+			left_motor_set_speed(0);
+		} else if(delta_phase >= 0){
+			motor_set_pos(delta_phase,delta_phase,-8,8);
+			motor_set_pos(norm_tot,norm_tot,8,8);
+
+			robot_x = x;
+			robot_y = y;
+		} else if(delta_phase < 0){
+			motor_set_pos(-delta_phase,-delta_phase,8,-8);
+			motor_set_pos(norm_tot,norm_tot,8,8);
+
+			robot_x = x;
+			robot_y = y;
+		}
+		*/
 		if(x == robot_x && y == robot_y){
 			right_motor_set_speed(0);
 			left_motor_set_speed(0);
