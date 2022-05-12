@@ -8,7 +8,10 @@
 #ifndef GLOBAL_H_
 #define GLOBAL_H_
 
-#define THRESHOLD_PROXIMITY 700
+
+
+//DEFINE FOR MOTOR MOUVEMENTS
+
 
 typedef struct { //normalised RGB
 	float red;

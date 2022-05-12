@@ -2,13 +2,13 @@
 #include "hal.h"
 #include <main.h>
 #include <usbcfg.h>
-#include <chprintf.h>
+//#include <chprintf.h>
 #include <math.h>
 #include <motors.h>
 #include <arm_math.h>
 #include "coordinate_motor.h"
-#include <button.h>
-#include "capture_color.h"
+//#include <button.h>
+//#include "capture_color.h"
 #include "detect_obj.h"
 #include "led_anim.h"
 
@@ -16,16 +16,16 @@
 #define PERIMETER_EPUCK     (M_PI * WHEEL_DISTANCE)
 #define NSTEP_ONE_TURN      1000 // number of step for 1 turn of the motor
 #define WHEEL_PERIMETER     13 // [cm]
+#define R_CIRCLE 			37 // [cm]
+//static float R_CIRCLE = 37; //should be a #define
 
-static float r_cercle = 37;
+static float robot_x = 0; //could be a struct
+static float robot_y = 0; //could be a struct
 
-static float robot_x = 0;
-static float robot_y = 0;
+static float x = 0; //could be a struct
+static float y = 0; //could be a struct
 
-static float x = 0;
-static float y = 0;
-
-bool flag_pause_motor = FALSE;
+static bool flag_pause_motor = FALSE;
 // semaphore
 static BSEMAPHORE_DECL(move_and_track, TRUE);
 static BSEMAPHORE_DECL(move_finished, TRUE);
@@ -62,8 +62,6 @@ void motor_set_pos(float pos_r, float pos_l, float vit_r, float vit_l){
 					right_motor_set_speed(vit_step_r);
 					left_motor_set_speed(vit_step_l);
 				}
-
-				//chThdSleepMilliseconds(50);
 			}
 		} else if(vit_step_r > 0 && vit_step_l < 0){
 			left_motor_set_pos(pos_step_l);
@@ -77,8 +75,6 @@ void motor_set_pos(float pos_r, float pos_l, float vit_r, float vit_l){
 					right_motor_set_speed(vit_step_r);
 					left_motor_set_speed(vit_step_l);
 				}
-
-				//chThdSleepMilliseconds(50);
 			}
 		} else if(vit_step_r < 0 && vit_step_l > 0){
 			right_motor_set_pos(pos_step_r);
@@ -123,8 +119,8 @@ static THD_FUNCTION(MotorCoordinate, arg) {
         time = chVTGetSystemTime();
 
 
-		chprintf((BaseSequentialStream *)&SD3, "x = %f \n", x);
-		chprintf((BaseSequentialStream *)&SD3, "y = %f \n", y);
+		//chprintf((BaseSequentialStream *)&SD3, "x = %f \n", x);
+		//chprintf((BaseSequentialStream *)&SD3, "y = %f \n", y);
 
 		//chprintf((BaseSequentialStream *)&SD3, "robot_x = %f \n", robot_x);
 		//chprintf((BaseSequentialStream *)&SD3, "robot_y = %f \n", robot_y);
@@ -183,7 +179,7 @@ static THD_FUNCTION(MotorCoordinate, arg) {
 			right_motor_set_speed(0);
 			left_motor_set_speed(0);
     	} else if(x < robot_x && y < robot_y){
-			motor_set_pos(PERIMETER_EPUCK/4,PERIMETER_EPUCK/4,8,-8);
+			motor_set_pos(PERIMETER_EPUCK/4,PERIMETER_EPUCK/4,8,-8); //8 is a magic number !
 			motor_set_pos(delta_x,delta_x,8,8);
 			motor_set_pos(PERIMETER_EPUCK/4,PERIMETER_EPUCK/4,8,-8);
 			motor_set_pos(delta_y,delta_y,8,8);
@@ -229,18 +225,10 @@ static THD_FUNCTION(MotorCoordinate, arg) {
 	}
 }
 
-//static THD_WORKING_AREA(waMotorPause, 512);
-//static THD_FUNCTION(MotorPause, arg) {
-//	chBSemWait(&pause_move);
-//	right_motor_set_speed(0);
-//	left_motor_set_speed(0);
-//	chThdSleepMilliseconds(100);
-//}
-
 
 
 void motor_coordinate_start(void){
-	//chThdCreateStatic(waMotorPause, sizeof(waMotorPause), NORMALPRIO, MotorPause, NULL);
+	detect_obj_start();//Init IR detection
 	chThdCreateStatic(waMotorCoordinate, sizeof(waMotorCoordinate), LOWPRIO, MotorCoordinate, NULL);
 }
 
@@ -261,7 +249,7 @@ void set_robot_pos_y(float y_input){
 }
 
 float convert_coord_cm(float coord){  //take x and y value and convert it
-	float x = r_cercle*coord/100;
+	float x = R_CIRCLE*coord/100;
 	return x;
 }
 

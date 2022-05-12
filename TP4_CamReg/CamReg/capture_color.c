@@ -1,30 +1,23 @@
 #include "capture_color.h"
 #include "ch.h"
 #include "hal.h"
-#include <chprintf.h>
+//#include <chprintf.h> uncomment if need debugging functionality
 #include <usbcfg.h>
 #include <leds.h>
 #include <main.h>
 #include <camera/po8030.h>
 #include <audio/play_melody.h>
 #include <math.h>
-#include <motors.h>
 #include <coordinate_motor.h>
 #include <button.h>
 #include "led_anim.h"
 #include "global.h"
-//static bool DONE_CAPTURE = FALSE;
-
-
 
 //semaphore
 static BSEMAPHORE_DECL(image_ready_sem, TRUE);
 static BSEMAPHORE_DECL(capture_start, TRUE);
 static BSEMAPHORE_DECL(capture_finished,TRUE);
-/*
- *  Returns the line's width extracted from the image buffer given
- *  Returns 0 if line not found
- */
+
 
 static THD_WORKING_AREA(waCaptureImage, 256);
 static THD_FUNCTION(CaptureImage, arg) {
@@ -51,7 +44,6 @@ static THD_FUNCTION(CaptureImage, arg) {
 		//waits for the capture to be done
 		wait_image_ready();
 		//signals an image has been captured
-
 		chBSemSignal(&image_ready_sem);
     }
 }
@@ -64,8 +56,6 @@ static THD_FUNCTION(ProcessImage, arg) {
     static struct RGB_l color_rgb_long =  {0,0,0};
     uint8_t compte_mesures = NB_MESURES;
 	uint8_t *img_buff_ptr;
-	//enum state capture;
-	//DONE_CAPTURE = FALSE;
     while(1){
     	//waits until an image has been captured
     	chBSemWait(&capture_start);
@@ -98,11 +88,9 @@ static THD_FUNCTION(ProcessImage, arg) {
 			//led_match(color_rgb_n);
 			set_led_color(color_rgb_n);
 			set_led_state(ALL_ON_COLOR);
-			//chprintf((BaseSequentialStream *)&SD3, "set all color ! \r");
 			RGB2HSV(color_rgb_n, &color_hsv);
 
-			print_color(color_rgb_n, color_hsv, RGB);
-			//if(button_get_state()==1){
+			//print_color(color_rgb_n, color_hsv, RGB); //uncomment if need debugging functionality
 
 			color_hsv.hue = -color_hsv.hue + 90; //HSV to polar circle
 			fmod(color_hsv.hue,360);
@@ -129,9 +117,8 @@ static THD_FUNCTION(ProcessImage, arg) {
 			//set_led_state(NO_LEDS);
 			chThdYield();
 		} else {
-			chBSemSignal(&capture_start); //Continue to capture if we still need to
+			chBSemSignal(&capture_start); //Start to capture next image !
 		}
-		//*img_buff_ptr = NULL;
 
     }
 }
@@ -195,6 +182,9 @@ float min(float a, float b, float c) {
 
 
 void process_image_start(void){
+    //starts the camera
+    dcmi_start();
+	po8030_start();
 	chThdCreateStatic(waProcessImage, sizeof(waProcessImage), NORMALPRIO+1, ProcessImage, NULL);
 	chThdCreateStatic(waCaptureImage, sizeof(waCaptureImage), NORMALPRIO+1, CaptureImage, NULL);
 }

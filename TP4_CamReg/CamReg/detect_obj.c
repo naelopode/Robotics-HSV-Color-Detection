@@ -1,28 +1,15 @@
-/*
- * proximity.c
- *
- *  Created on: 11 mai 2022
- *      Author: naeld
- */
 
-/*
- * led_anim.c
- *
- *  Created on: 10 mai 2022
- *      Author: naeld
- */
 #include "ch.h"
 #include "hal.h"
-#include <chprintf.h>
 #include <usbcfg.h>
 #include "detect_obj.h"
 #include "sensors/proximity.h"
-#include "coordinate_motor.h""
-//#include <main.h>
+//#include "global.h"
 
-#include "global.h"
-//semaphore
-bool detected_flag = FALSE;
+#define THRESHOLD_PROXIMITY 700
+
+//static declaration
+static bool detected_flag = FALSE;
 
 uint8_t detected_obj(void){
 	bool detected = FALSE;
@@ -38,7 +25,7 @@ uint8_t detected_obj(void){
 	}
 }
 
-void detect_obj_start(void){
+void detect_obj_start(void){ //start necessary threads and calibrate
 	proximity_start();
 	calibrate_ir();
 }

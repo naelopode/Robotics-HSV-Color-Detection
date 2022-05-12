@@ -8,18 +8,17 @@
 #include "memory_protection.h"
 #include <usbcfg.h>
 #include <main.h>
-#include <motors.h>
+//#include <motors.h>
 #include <camera/po8030.h>
 #include <chprintf.h>
-#include <leds.h>
-#include <audio/audio_thread.h>
-#include <audio/play_melody.h>
-#include <spi_comm.h>
+//#include <leds.h>
+//#include <audio/audio_thread.h>
+//#include <audio/play_melody.h>
+//#include <spi_comm.h>
 #include "capture_color.h"
 #include "coordinate_motor.h"
 #include "led_anim.h"
 #include "usr_interface.h"
-#include "detect_obj.h"
 messagebus_t bus;
 MUTEX_DECL(bus_lock);
 CONDVAR_DECL(bus_condvar);
@@ -52,25 +51,24 @@ int main(void)
     halInit();
     chSysInit();
     mpu_init();
-
+    //initialise the bus
     messagebus_init(&bus, &bus_lock, &bus_condvar);
     //starts the serial communication
     serial_start();
     //start the USB communication
     usb_start();
-    //starts the camera
-    dcmi_start();
-	po8030_start();
+
 	//inits the motors
 	motors_init();
-	//playMelodyStart();
-	//stars the threads for the pi regulator and the processing of the image
+	//init motor thread
 	motor_coordinate_start();
+	//init image capture thread
 	process_image_start();
-	spi_comm_start();
+	//init led animation thread
 	led_anim_start();
+	//init button thread
 	usr_interface_start();
-	detect_obj_start();
+
 	current_state = INIT+1; //jump to next state
     /* Infinite loop. */
 
