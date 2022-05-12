@@ -23,13 +23,12 @@ extern "C" {
 #define MAX_SUM_ERROR 			(MOTOR_SPEED_LIMIT/KI)
 
 
-enum FSM{
-	INIT,
-	WAIT_INPUT,
-	CAPTURE_COLOR,
-	MOVE_AND_TRACK,
-	OBJ_DETECTED,
-};
+//enum FSM{
+//	INIT,
+//	WAIT_INPUT,
+//	CAPTURE_COLOR,
+//	MOVE_AND_TRACK,
+//};
 
 
 /** Robot wide IPC bus. */

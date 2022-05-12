@@ -38,10 +38,10 @@ static THD_FUNCTION(LedAnim, arg) {
     			for (uint8_t i = 0; i<NUM_RGB_LED; ++i){
     				clear_leds();
     				set_led(i, 1);
-    				chThdSleepMilliseconds(200);
+    				chThdSleepMilliseconds(75);
     				clear_leds();
     				set_rgb_led(i, RGB_MAX_INTENSITY,0,0);
-    				chThdSleepMilliseconds(200);
+    				chThdSleepMilliseconds(75);
     				clear_leds();
     			}
     			break;
@@ -49,10 +49,10 @@ static THD_FUNCTION(LedAnim, arg) {
     	  		for (uint8_t i = 1; i<=NUM_RGB_LED; ++i){
     	  			clear_leds();
     	    		set_rgb_led(NUM_RGB_LED-i, RGB_MAX_INTENSITY,0,0);
-    	    		chThdSleepMilliseconds(200);
+    	    		chThdSleepMilliseconds(75);
     	   			clear_leds();
     	   			set_led(NUM_LED-i, 1);
-    	   			chThdSleepMilliseconds(200);
+    	   			chThdSleepMilliseconds(75);
     	   			clear_leds();
     			}
     			break;
@@ -64,25 +64,32 @@ static THD_FUNCTION(LedAnim, arg) {
     			chThdSleepMilliseconds(1000);
     			break;
     		case (ALL_ON_COLOR):
+
     	   		for (uint8_t i = 0; i<NUM_RGB_LED; ++i){
+    	   			set_led(i, 0);
     	   			set_rgb_led(i,(uint8_t) (COLOR_LED.red*RGB_MAX_INTENSITY),
     	   						  (uint8_t) (COLOR_LED.green*RGB_MAX_INTENSITY),
     	   						  (uint8_t) (COLOR_LED.blue*RGB_MAX_INTENSITY));
     	    	}
     			chThdSleepMilliseconds(500);
+
 				break;
     		case (BLINK):
 				clear_leds();
-    			chThdSleepMilliseconds(200);
-    			set_led(0, 1);
-    			set_led(1, 1);
-    			set_led(2, 1);
-    			set_led(3, 1);
-    			set_rgb_led(0, RGB_MAX_INTENSITY,0,0);
-    			set_rgb_led(1, RGB_MAX_INTENSITY,0,0);
-    			set_rgb_led(2, RGB_MAX_INTENSITY,0,0);
-    			set_rgb_led(3, RGB_MAX_INTENSITY,0,0);
-    			chThdSleepMilliseconds(200);
+    			chThdSleepMilliseconds(50);
+//    			set_led(0, 1);
+//    			set_led(1, 1);
+//    			set_led(2, 1);
+//    			set_led(3, 1);
+//    			set_rgb_led(0, RGB_MAX_INTENSITY,0,0);
+//    			set_rgb_led(1, RGB_MAX_INTENSITY,0,0);
+//    			set_rgb_led(2, RGB_MAX_INTENSITY,0,0);
+//    			set_rgb_led(3, RGB_MAX_INTENSITY,0,0);
+    			for (uint8_t i = 0; i<NUM_RGB_LED; ++i){
+    				set_led(i, 1);
+    				set_rgb_led(i, RGB_MAX_INTENSITY,0,0);
+    			}
+    			chThdSleepMilliseconds(50);
 //    	    	for (uint8_t i = 0; i<NUM_RGB_LED; ++i){
 //    	    		chprintf((BaseSequentialStream *)&SD3, "HERE\n");
 //    	    		set_led(i, 1);

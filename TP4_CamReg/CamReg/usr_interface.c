@@ -9,6 +9,8 @@
 #include "hal.h"
 #include <chprintf.h>
 #include <usbcfg.h>
+
+#define WAITING_TIME 20
 //semaphore
 static BSEMAPHORE_DECL(button_pressed, TRUE);
 
@@ -24,11 +26,21 @@ static THD_FUNCTION(UsrInerface, arg) {
     chRegSetThreadName(__FUNCTION__);
     (void)arg;
    // static LED_STATES_t LED_STATE;
+    bool previous_state = FALSE; //bool to prevent double signaling
+    uint8_t wait = 0;
     while(1){
     	if (button_get_state()){
-    		chBSemSignal(&button_pressed);
+    		if (!previous_state){
+    			chBSemSignal(&button_pressed);
+    			previous_state = TRUE;
+    			wait = WAITING_TIME;
+    		}
     	}
     	chThdSleepMilliseconds(100); //check every 0.1s
+    	--wait;
+    	if (wait==0){
+    		previous_state=FALSE;
+    	}
     }
 }
 
@@ -40,7 +52,10 @@ void usr_interface_start(void){
 void wait_button_pressed(void) {
 	//waits until capture is finished
 	chBSemWait(&button_pressed);
+	chprintf((BaseSequentialStream *)&SD3, "BUTTON_PRESSED \r");
+	//chBSemResetI(&button_pressed, TRUE);
 }
+
 
 
 

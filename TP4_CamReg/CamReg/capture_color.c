@@ -98,10 +98,10 @@ static THD_FUNCTION(ProcessImage, arg) {
 			//led_match(color_rgb_n);
 			set_led_color(color_rgb_n);
 			set_led_state(ALL_ON_COLOR);
-			chprintf((BaseSequentialStream *)&SD3, "set all color ! \r");
+			//chprintf((BaseSequentialStream *)&SD3, "set all color ! \r");
 			RGB2HSV(color_rgb_n, &color_hsv);
 
-			//print_color(color_rgb_n, color_hsv, RGB);
+			print_color(color_rgb_n, color_hsv, RGB);
 			//if(button_get_state()==1){
 			set_robot_pos_x(color_hsv.saturation*cos(color_hsv.hue)); //TODO mettre ça dans les coordinate
 			set_robot_pos_y(color_hsv.saturation*sin(color_hsv.hue));
@@ -116,7 +116,7 @@ static THD_FUNCTION(ProcessImage, arg) {
 			color_rgb_long.blue=0;
 			compte_mesures = NB_MESURES;
 				//chBSemSignal(&color_ready_sem);
-			chprintf((BaseSequentialStream *)&SD3, "done capturing ! \r");
+			//chprintf((BaseSequentialStream *)&SD3, "done capturing ! \r");
 			//capture_state = DONE;
 			//DONE_CAPTURE = TRUE;
 			chBSemSignal(&capture_finished);
@@ -130,9 +130,6 @@ static THD_FUNCTION(ProcessImage, arg) {
     }
 }
 
-void get_color(){
-
-}
 
 void led_match(color_rgb_n_t input){
 	for (uint8_t i = 0; i<NUM_RGB_LED;++i){
@@ -142,7 +139,7 @@ void led_match(color_rgb_n_t input){
 	}
 }
 
-void RGB2HSV(color_rgb_n_t input, struct HSV *output){
+void RGB2HSV(color_rgb_n_t input, struct HSV *output){ //Code from https://www.tutorialspoint.com/c-program-to-change-rgb-color-model-to-hsv-color-model
 	float cmax = max(input.red, input.green, input.blue); // maximum of r, g, b
 	float cmin = min(input.red, input.green, input.blue); // minimum of r, g, b
 	float diff = cmax-cmin; // diff of cmax and cmin.
@@ -212,7 +209,7 @@ void print_color(color_rgb_n_t input_RGB, struct HSV input_HSV, color_type forma
 }
 
 void set_semaphore_capture(){
-	chprintf((BaseSequentialStream *)&SD3, "semaphore capture started \r");
+	//chprintf((BaseSequentialStream *)&SD3, "semaphore capture started \r");
 	chBSemSignal(&capture_start);
 }
 
@@ -224,4 +221,6 @@ void set_semaphore_capture(){
 void wait_capture_ready(void) {
 	//waits until capture is finished
 	chBSemWait(&capture_finished);
+	//chBSemResetI(&capture_finished,TRUE);
+
 }
