@@ -17,7 +17,7 @@
 #define NSTEP_ONE_TURN      1000 // number of step for 1 turn of the motor
 #define WHEEL_PERIMETER     13 // [cm]
 
-static float r_cercle = 37;
+static float r_cercle = 37.5;
 
 static float robot_x = 0;
 static float robot_y = 0;
@@ -118,63 +118,13 @@ static THD_FUNCTION(MotorCoordinate, arg) {
     systime_t time;
 
     while(1){
-    	//chprintf((BaseSequentialStream *)&SD3, "step1\n");
     	chBSemWait(&move_and_track);
 
-    	//chprintf((BaseSequentialStream *)&SD3, "step2\n");
         time = chVTGetSystemTime();
 
+		float delta_x = abs(robot_x-x);
+		float delta_y = abs(robot_y-y);
 
-		chprintf((BaseSequentialStream *)&SD3, "x = %f \n", x);
-		chprintf((BaseSequentialStream *)&SD3, "y = %f \n", y);
-
-		//chprintf((BaseSequentialStream *)&SD3, "robot_x = %f \n", robot_x);
-		//chprintf((BaseSequentialStream *)&SD3, "robot_y = %f \n", robot_y);
-
-        float phase = 0;
-		float phase_robot = 0;
-		float norm = sqrt(x*x + y*y);
-		float norm_robot = sqrt(robot_x*robot_x + robot_y*robot_y);
-		float norm_tot = 0;
-
-		float alpha = 0;
-		float phi = 0;
-		if(norm_robot != 0){
-			alpha  = acos((x*robot_x + y*robot_y)/(norm*norm_robot));
-			norm_tot = sqrt(norm*norm + norm_robot*norm_robot - 2*norm*norm_robot*cos(alpha));
-			phi = 180 - asin(sin(alpha)*norm/norm_tot);
-		} else {
-			phi = abs(angle);
-			norm_tot = sqrt(norm*norm + norm_robot*norm_robot - 2*norm*norm_robot*cos(alpha));
-		}
-
-		chprintf((BaseSequentialStream *)&SD3, "phi = %f \n", phi);
-		chprintf((BaseSequentialStream *)&SD3, "x = %f \n", x);
-		chprintf((BaseSequentialStream *)&SD3, "y = %f \n", y);
-
-		//float delta_x = abs(robot_x-x);
-		//float delta_y = abs(robot_y-y);
-
-		//delta_phase = delta_phase*PERIMETER_EPUCK/360;
-		phi = phi*PERIMETER_EPUCK/360;
-
-		if(x == robot_x && y == robot_y){
-			right_motor_set_speed(0);
-			left_motor_set_speed(0);
-		} else if(alpha >= 0){
-			motor_set_pos(phi,phi,-8,8);
-			motor_set_pos(norm_tot,norm_tot,8,8);
-
-			robot_x = x;
-			robot_y = y;
-		} else if(alpha < 0){
-			motor_set_pos(-phi,-phi,8,-8);
-			motor_set_pos(norm_tot,norm_tot,8,8);
-
-			robot_x = x;
-			robot_y = y;
-		}
-		/*
 		if(x == robot_x && y == robot_y){
 			right_motor_set_speed(0);
 			left_motor_set_speed(0);
@@ -218,7 +168,7 @@ static THD_FUNCTION(MotorCoordinate, arg) {
 		} else {
 			right_motor_set_speed(0);
 			left_motor_set_speed(0);
-		} */
+		}
 		chBSemSignal(&move_finished);
 		//chThdSleepUntilWindowed(time, time + MS2ST(5000));
 		chThdSleepMilliseconds(1000);
@@ -232,8 +182,6 @@ static THD_FUNCTION(MotorCoordinate, arg) {
 //	left_motor_set_speed(0);
 //	chThdSleepMilliseconds(100);
 //}
-
-
 
 void motor_coordinate_start(void){
 	//chThdCreateStatic(waMotorPause, sizeof(waMotorPause), NORMALPRIO, MotorPause, NULL);
