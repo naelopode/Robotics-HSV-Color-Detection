@@ -16,8 +16,8 @@
 #define PERIMETER_EPUCK     (M_PI * WHEEL_DISTANCE)
 #define NSTEP_ONE_TURN      1000 // number of step for 1 turn of the motor
 #define WHEEL_PERIMETER     13 // [cm]
-
-static float r_cercle = 37.5;
+#define CIRCLE_RADIUS 		37.5f // [cm]
+#define ROBOT_SPEED			700 // [step/s]
 
 static float robot_x = 0;
 static float robot_y = 0;
@@ -26,6 +26,7 @@ static float x = 0;
 static float y = 0;
 
 static float angle = 0;
+static float norm = 0;
 
 bool flag_pause_motor = FALSE;
 // semaphore
@@ -42,55 +43,57 @@ int16_t convert_cm_step(float x){  //convert cm into steps
 	return x_step;
 }
 
-void motor_set_pos(float pos_r, float pos_l, float vit_r, float vit_l){
+void motor_set_pos(float pos_to_reach, robot_dir way){
 	// functions in "motors.c" take steps as input
 	// a cm -> steps conversion is then needed
 
-	float pos_step_r = convert_cm_step(pos_r);
-	float pos_step_l = convert_cm_step(pos_l);
-	float vit_step_r = convert_cm_step(vit_r);
-	float vit_step_l = convert_cm_step(vit_l);
+	float pos_to_reach_step = convert_cm_step(pos_to_reach);
 
 	// the step counter of the robot stops at a given value wich corresponds to a given position
-	if(pos_step_r != 0 && pos_step_l != 0){
-		if(vit_step_r > 0 && vit_step_l > 0){
-			while(right_motor_get_pos() <= pos_step_r && left_motor_get_pos() <= pos_step_l){
-				if (detected_obj()){
-					set_led_state(BLINK);
-					right_motor_set_speed(0);
-					left_motor_set_speed(0);
-				} else {
-					set_led_state(ALL_ON_COLOR);
-					right_motor_set_speed(vit_step_r);
-					left_motor_set_speed(vit_step_l);
+
+	if(pos_to_reach_step != 0){
+		switch (way){
+			case FW :
+				while(right_motor_get_pos() <= pos_to_reach_step && left_motor_get_pos() <= pos_to_reach_step){
+					if (detected_obj()){
+						set_led_state(BLINK);
+						right_motor_set_speed(0);
+						left_motor_set_speed(0);
+					} else {
+						set_led_state(ALL_ON_COLOR);
+						right_motor_set_speed(ROBOT_SPEED);
+						left_motor_set_speed(ROBOT_SPEED);
+					}
 				}
-			}
-		} else if(vit_step_r > 0 && vit_step_l < 0){
-			left_motor_set_pos(pos_step_l);
-			while(right_motor_get_pos() <= pos_step_r && left_motor_get_pos() >= 0){
-				if (detected_obj()){
-					set_led_state(BLINK);
-					right_motor_set_speed(0);
-					left_motor_set_speed(0);
-				} else {
-					set_led_state(ALL_ON_COLOR);
-					right_motor_set_speed(vit_step_r);
-					left_motor_set_speed(vit_step_l);
+				break;
+			case CCW :
+				left_motor_set_pos(pos_to_reach_step);
+				while(right_motor_get_pos() <= pos_to_reach_step && left_motor_get_pos() >= 0){
+					if (detected_obj()){
+						set_led_state(BLINK);
+						right_motor_set_speed(0);
+						left_motor_set_speed(0);
+					} else {
+						set_led_state(ALL_ON_COLOR);
+						right_motor_set_speed(ROBOT_SPEED);
+						left_motor_set_speed(-ROBOT_SPEED);
+					}
 				}
-			}
-		} else if(vit_step_r < 0 && vit_step_l > 0){
-			right_motor_set_pos(pos_step_r);
-			while(right_motor_get_pos() >= 0 && left_motor_get_pos() <= pos_step_l){
-				if (detected_obj()){
-					set_led_state(BLINK);
-					right_motor_set_speed(0);
-					left_motor_set_speed(0);
-				} else {
-					set_led_state(ALL_ON_COLOR);
-					right_motor_set_speed(vit_step_r);
-					left_motor_set_speed(vit_step_l);
+				break;
+			case CW :
+				right_motor_set_pos(pos_to_reach_step);
+				while(right_motor_get_pos() >= 0 && left_motor_get_pos() <= pos_to_reach_step){
+					if (detected_obj()){
+						set_led_state(BLINK);
+						right_motor_set_speed(0);
+						left_motor_set_speed(0);
+					} else {
+						set_led_state(ALL_ON_COLOR);
+						right_motor_set_speed(-ROBOT_SPEED);
+						left_motor_set_speed(ROBOT_SPEED);
+					}
 				}
-			}
+				break;
 		}
 	}
 
@@ -106,16 +109,15 @@ static THD_FUNCTION(MotorCoordinate, arg) {
 
     chRegSetThreadName(__FUNCTION__);
     (void)arg;
-	// + + = forward
-	// - - = backward
-	// + - = ccw
-	// - + = cw
-    systime_t time;
 
     while(1){
     	chBSemWait(&move_and_track);
 
-        time = chVTGetSystemTime();
+		angle = -angle + 90; //HSV to polar circle
+		fmod(angle,360);
+
+		set_robot_pos_x(norm*cos(angle*M_PI/180)); //polar -> cartesian coordinate change
+		set_robot_pos_y(norm*sin(angle*M_PI/180)); //cos and sin takes radiant input so deg -> rad conversion
 
 		float delta_x = abs(robot_x-x);
 		float delta_y = abs(robot_y-y);
@@ -124,39 +126,39 @@ static THD_FUNCTION(MotorCoordinate, arg) {
 			right_motor_set_speed(0);
 			left_motor_set_speed(0);
     	} else if(x < robot_x && y < robot_y){
-			motor_set_pos(PERIMETER_EPUCK/4,PERIMETER_EPUCK/4,8,-8);
-			motor_set_pos(delta_x,delta_x,8,8);
-			motor_set_pos(PERIMETER_EPUCK/4,PERIMETER_EPUCK/4,8,-8);
-			motor_set_pos(delta_y,delta_y,8,8);
-			motor_set_pos(PERIMETER_EPUCK/2,PERIMETER_EPUCK/2,-8,8);
+			motor_set_pos(PERIMETER_EPUCK/4,CCW);
+			motor_set_pos(delta_x,FW);
+			motor_set_pos(PERIMETER_EPUCK/4,CCW);
+			motor_set_pos(delta_y,FW);
+			motor_set_pos(PERIMETER_EPUCK/2,CW);
 
 			robot_x=x;
 			robot_y=y;
 
 		} else if(x > robot_x && y < robot_y){
-			motor_set_pos(PERIMETER_EPUCK/4,PERIMETER_EPUCK/4,-8,8);
-			motor_set_pos(delta_x,delta_x,8,8);
-			motor_set_pos(PERIMETER_EPUCK/4,PERIMETER_EPUCK/4,-8,8);
-			motor_set_pos(delta_y,delta_y,8,8);
-			motor_set_pos(PERIMETER_EPUCK/2,PERIMETER_EPUCK/2,-8,8);
+			motor_set_pos(PERIMETER_EPUCK/4,CW);
+			motor_set_pos(delta_x,FW);
+			motor_set_pos(PERIMETER_EPUCK/4,CW);
+			motor_set_pos(delta_y,FW);
+			motor_set_pos(PERIMETER_EPUCK/2,CW);
 
 			robot_x=x;
 			robot_y=y;
 
 		} else if(x < robot_x && y > robot_y){
-			motor_set_pos(PERIMETER_EPUCK/4,PERIMETER_EPUCK/4,8,-8);
-			motor_set_pos(delta_x,delta_x,8,8);
-			motor_set_pos(PERIMETER_EPUCK/4,PERIMETER_EPUCK/4,-8,8);
-			motor_set_pos(delta_y,delta_y,8,8);
+			motor_set_pos(PERIMETER_EPUCK/4,CCW);
+			motor_set_pos(delta_x,FW);
+			motor_set_pos(PERIMETER_EPUCK/4,CW);
+			motor_set_pos(delta_y,FW);
 
 			robot_x=x;
 			robot_y=y;
 
 		} else if(x > robot_x && y > robot_y){
-			motor_set_pos(PERIMETER_EPUCK/4,PERIMETER_EPUCK/4,-8,8);
-			motor_set_pos(delta_x,delta_x,8,8);
-			motor_set_pos(PERIMETER_EPUCK/4,PERIMETER_EPUCK/4,8,-8);
-			motor_set_pos(delta_y,delta_y,8,8);
+			motor_set_pos(PERIMETER_EPUCK/4,CW);
+			motor_set_pos(delta_x,FW);
+			motor_set_pos(PERIMETER_EPUCK/4,CCW);
+			motor_set_pos(delta_y,FW);
 
 			robot_x=x;
 			robot_y=y;
@@ -189,8 +191,8 @@ void set_robot_pos_y(float y_input){
 	y = convert_coord_cm(y_input);
 }
 
-float convert_coord_cm(float coord){  //take x and y value and convert it
-	float x = r_cercle*coord/100;
+float convert_coord_cm(float coord){  //take x and y value and convert it in cm
+	float x = CIRCLE_RADIUS*coord/100;
 	return x;
 }
 
@@ -200,4 +202,8 @@ void wait_move_finished(void){
 
 void set_angle(float angle_input){
 	angle = angle_input;
+}
+
+void set_norm(float norm_input){
+	norm = norm_input;
 }

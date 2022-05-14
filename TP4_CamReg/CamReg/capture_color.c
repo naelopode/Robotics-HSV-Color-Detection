@@ -83,12 +83,8 @@ static THD_FUNCTION(ProcessImage, arg) {
 
 			//print_color(color_rgb_n, color_hsv, RGB); //chprintf color values for debug purposes
 
-			color_hsv.hue = -color_hsv.hue + 90; //HSV to polar circle
-			fmod(color_hsv.hue,360);
-
-			set_robot_pos_x(color_hsv.saturation*cos(color_hsv.hue*M_PI/180)); //TODO mettre ça dans les coordinate
-			set_robot_pos_y(color_hsv.saturation*sin(color_hsv.hue*M_PI/180));
 			set_angle(color_hsv.hue);
+			set_norm(color_hsv.saturation);
 
 			//RESET VALUE FOR NEXT ROUND OF MEASURMENTS
 			color_rgb_long.red=0;
