@@ -19,14 +19,11 @@
 #define CIRCLE_RADIUS 		37.5f // [cm]
 #define ROBOT_SPEED			700 // [step/s]
 
-static float robot_x = 0;
-static float robot_y = 0;
+static struct Coordinates pos_robot = {0.,0.}; // position of the robot
+static struct Coordinates pos_obj = {0.,0.}; // position objectif where the robot need to go
 
-static float x = 0;
-static float y = 0;
-
-static float angle = 0;
-static float norm = 0;
+static float angle = 0; // value between 0 and 360°
+static float norm = 0; // value between 0 and 100%
 
 bool flag_pause_motor = FALSE;
 // semaphore
@@ -116,52 +113,52 @@ static THD_FUNCTION(MotorCoordinate, arg) {
 		angle = -angle + 90; //HSV to polar circle
 		fmod(angle,360);
 
-		set_robot_pos_x(norm*cos(angle*M_PI/180)); //polar -> cartesian coordinate change
-		set_robot_pos_y(norm*sin(angle*M_PI/180)); //cos and sin takes radiant input so deg -> rad conversion
+		pos_obj.x = convert_coord_cm(norm*cos(angle*M_PI/180)); //polar -> cartesian coordinate change
+		pos_obj.y = convert_coord_cm(norm*sin(angle*M_PI/180)); //cos and sin takes radiant input so deg -> rad conversion
 
-		float delta_x = abs(robot_x-x);
-		float delta_y = abs(robot_y-y);
+		float delta_x = abs(pos_robot.x-pos_obj.x); // gives the norm of the movement
+		float delta_y = abs(pos_robot.y-pos_obj.y);
 
-		if(x == robot_x && y == robot_y){
+		if(pos_obj.x == pos_robot.x && pos_obj.y == pos_robot.y){
 			right_motor_set_speed(0);
 			left_motor_set_speed(0);
-    	} else if(x < robot_x && y < robot_y){
+    	} else if(pos_obj.x < pos_robot.x && pos_obj.y < pos_robot.y){ // bottom left quadrant
 			motor_set_pos(PERIMETER_EPUCK/4,CCW);
 			motor_set_pos(delta_x,FW);
 			motor_set_pos(PERIMETER_EPUCK/4,CCW);
 			motor_set_pos(delta_y,FW);
 			motor_set_pos(PERIMETER_EPUCK/2,CW);
 
-			robot_x=x;
-			robot_y=y;
+			pos_robot.x=pos_obj.x;
+			pos_robot.y=pos_obj.y;
 
-		} else if(x > robot_x && y < robot_y){
+		} else if(pos_obj.x > pos_robot.x && pos_obj.y < pos_robot.y){ // bottom right quadrant
 			motor_set_pos(PERIMETER_EPUCK/4,CW);
 			motor_set_pos(delta_x,FW);
 			motor_set_pos(PERIMETER_EPUCK/4,CW);
 			motor_set_pos(delta_y,FW);
 			motor_set_pos(PERIMETER_EPUCK/2,CW);
 
-			robot_x=x;
-			robot_y=y;
+			pos_robot.x=pos_obj.x;
+			pos_robot.y=pos_obj.y;
 
-		} else if(x < robot_x && y > robot_y){
+		} else if(pos_obj.x < pos_robot.x && pos_obj.y > pos_robot.y){ // upper left quadrant
 			motor_set_pos(PERIMETER_EPUCK/4,CCW);
 			motor_set_pos(delta_x,FW);
 			motor_set_pos(PERIMETER_EPUCK/4,CW);
 			motor_set_pos(delta_y,FW);
 
-			robot_x=x;
-			robot_y=y;
+			pos_robot.x=pos_obj.x;
+			pos_robot.y=pos_obj.y;
 
-		} else if(x > robot_x && y > robot_y){
+		} else if(pos_obj.x > pos_robot.x && pos_obj.y > pos_robot.y){ // upper right quadrant
 			motor_set_pos(PERIMETER_EPUCK/4,CW);
 			motor_set_pos(delta_x,FW);
 			motor_set_pos(PERIMETER_EPUCK/4,CCW);
 			motor_set_pos(delta_y,FW);
 
-			robot_x=x;
-			robot_y=y;
+			pos_robot.x=pos_obj.x;
+			pos_robot.y=pos_obj.y;
 		} else {
 			right_motor_set_speed(0);
 			left_motor_set_speed(0);
@@ -181,14 +178,6 @@ void pause_motor(void){
 
 void resume_motor(void){
 	flag_pause_motor=FALSE;
-}
-
-void set_robot_pos_x(float x_input){
-	x = convert_coord_cm(x_input);
-}
-
-void set_robot_pos_y(float y_input){
-	y = convert_coord_cm(y_input);
 }
 
 float convert_coord_cm(float coord){  //take x and y value and convert it in cm
