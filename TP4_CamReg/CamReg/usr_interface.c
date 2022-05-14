@@ -2,7 +2,7 @@
 #include "ch.h"
 #include "hal.h"
 #include <usbcfg.h>
-#include "button.c"
+#include "button.h"
 #define WAITING_TIME 		20
 
 static BSEMAPHORE_DECL(button_pressed, TRUE); //semaphore for when button is pressed

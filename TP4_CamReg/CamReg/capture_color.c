@@ -11,7 +11,6 @@
 #include "led_anim.h"
 #include "global.h"
 
-
 static BSEMAPHORE_DECL(capture_start, TRUE); //Semaphore to start a capture
 static BSEMAPHORE_DECL(image_ready_sem, TRUE); //Semaphore for when a capture is ready
 static BSEMAPHORE_DECL(capture_finished,TRUE); //Semaphore to declare a capture finished
@@ -102,7 +101,6 @@ static THD_FUNCTION(ProcessImage, arg) {
 		}
     }
 }
-
 
 void led_match(color_rgb_n_t input){
 	for (uint8_t i = 0; i<NUM_RGB_LED;++i){
