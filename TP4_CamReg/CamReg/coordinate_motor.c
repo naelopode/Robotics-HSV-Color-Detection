@@ -64,8 +64,6 @@ void motor_set_pos(float pos_r, float pos_l, float vit_r, float vit_l){
 					right_motor_set_speed(vit_step_r);
 					left_motor_set_speed(vit_step_l);
 				}
-
-				//chThdSleepMilliseconds(50);
 			}
 		} else if(vit_step_r > 0 && vit_step_l < 0){
 			left_motor_set_pos(pos_step_l);
@@ -79,8 +77,6 @@ void motor_set_pos(float pos_r, float pos_l, float vit_r, float vit_l){
 					right_motor_set_speed(vit_step_r);
 					left_motor_set_speed(vit_step_l);
 				}
-
-				//chThdSleepMilliseconds(50);
 			}
 		} else if(vit_step_r < 0 && vit_step_l > 0){
 			right_motor_set_pos(pos_step_r);
@@ -94,7 +90,6 @@ void motor_set_pos(float pos_r, float pos_l, float vit_r, float vit_l){
 					right_motor_set_speed(vit_step_r);
 					left_motor_set_speed(vit_step_l);
 				}
-
 			}
 		}
 	}
@@ -170,21 +165,11 @@ static THD_FUNCTION(MotorCoordinate, arg) {
 			left_motor_set_speed(0);
 		}
 		chBSemSignal(&move_finished);
-		//chThdSleepUntilWindowed(time, time + MS2ST(5000));
 		chThdSleepMilliseconds(1000);
 	}
 }
 
-//static THD_WORKING_AREA(waMotorPause, 512);
-//static THD_FUNCTION(MotorPause, arg) {
-//	chBSemWait(&pause_move);
-//	right_motor_set_speed(0);
-//	left_motor_set_speed(0);
-//	chThdSleepMilliseconds(100);
-//}
-
-void motor_coordinate_start(void){
-	//chThdCreateStatic(waMotorPause, sizeof(waMotorPause), NORMALPRIO, MotorPause, NULL);
+void motor_coordinate_start(void){ //Motor thread set as low prio as it need to be interrupted sometimes
 	chThdCreateStatic(waMotorCoordinate, sizeof(waMotorCoordinate), LOWPRIO, MotorCoordinate, NULL);
 }
 
@@ -211,7 +196,6 @@ float convert_coord_cm(float coord){  //take x and y value and convert it
 
 void wait_move_finished(void){
 	chBSemWait(&move_finished);
-	//chBSemResetI(&move_finished,TRUE);
 }
 
 void set_angle(float angle_input){

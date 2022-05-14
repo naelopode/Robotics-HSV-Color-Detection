@@ -1,11 +1,3 @@
-/*
- * led_anim.h
- *
- *  Created on: 10 mai 2022
- *      Author: naeld
- */
-
-
 #ifndef LEDANIM_H
 #define LEDANIM_H
 
@@ -17,12 +9,6 @@ typedef enum {
 	ALL_ON_COLOR,
 	BLINK,
 }LED_STATES_t;
-
-//typedef struct{ //normalised RGB
-//	float red;
-//	float green;
-//	float blue;
-//}color_rgb_t;
 
 void led_anim_start(void);
 void set_led_state (LED_STATES_t);

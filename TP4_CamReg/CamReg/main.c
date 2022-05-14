@@ -2,19 +2,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include <audio/play_melody.h>
 #include "ch.h"
 #include "hal.h"
 #include "memory_protection.h"
 #include <usbcfg.h>
 #include <main.h>
 #include <motors.h>
-#include <camera/po8030.h>
 #include <chprintf.h>
-#include <leds.h>
-#include <audio/audio_thread.h>
-#include <audio/play_melody.h>
-#include <spi_comm.h>
 #include "capture_color.h"
 #include "coordinate_motor.h"
 #include "led_anim.h"
@@ -52,22 +46,16 @@ int main(void)
     halInit();
     chSysInit();
     mpu_init();
-
     messagebus_init(&bus, &bus_lock, &bus_condvar);
     //starts the serial communication
     serial_start();
     //start the USB communication
     usb_start();
-    //starts the camera
-    dcmi_start();
-	po8030_start();
 	//inits the motors
 	motors_init();
-	//playMelodyStart();
 	//stars the threads for the pi regulator and the processing of the image
 	motor_coordinate_start();
 	process_image_start();
-	spi_comm_start();
 	led_anim_start();
 	usr_interface_start();
 	detect_obj_start();
@@ -75,30 +63,22 @@ int main(void)
     /* Infinite loop. */
 
     while (1) {
-    	//current_state = CAPTURE_COLOR;//for debug purposes
        	switch (current_state){
     		case (WAIT_INPUT):
 				chprintf((BaseSequentialStream *)&SD3, "STATE: WAIT_INPUT \r");
     			set_led_state(TURN_CW);
     			wait_button_pressed();
       			current_state = CAPTURE_COLOR;
-    			//chprintf((BaseSequentialStream *)&SD3, "button pushed \r");
     			break;
     		case (CAPTURE_COLOR):
-				//chprintf((BaseSequentialStream *)&SD3, "enter capture color \r");
 				chprintf((BaseSequentialStream *)&SD3, "STATE: CAPTURE_COLOR \r");
 				set_semaphore_capture();
 				wait_capture_ready();
 				current_state = MOVE_AND_TRACK;
     			break;
     		case (MOVE_AND_TRACK):
-				//chprintf((BaseSequentialStream *)&SD3, "enter move and track \r");
 				chprintf((BaseSequentialStream *)&SD3, "STATE: MOVE AND TRACK \r");
 				set_semaphore_move_and_track();
-
-//				if (get_detected_flag()){
-//					current_state=OBJ_DETECTED;
-//				}
 				wait_move_finished();
 				current_state=WAIT_INPUT;
     			break;

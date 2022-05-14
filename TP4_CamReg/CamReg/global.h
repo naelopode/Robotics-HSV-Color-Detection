@@ -1,16 +1,7 @@
-/*
- * global.h
- *
- *  Created on: 11 mai 2022
- *      Author: naeld
- */
-
 #ifndef GLOBAL_H_
 #define GLOBAL_H_
 
-#define THRESHOLD_PROXIMITY 700
-
-typedef struct { //normalised RGB
+typedef struct { //normalised RGB value, used by several modules
 	float red;
 	float green;
 	float blue;
