@@ -3,18 +3,21 @@
 #Simply adapt the lines below to be able to compile
 
 # Define project name here
-PROJECT = Noisy
+PROJECT = projet
+
+DEF = -DSTM32F407xx
 
 #Define path to the e-puck2_main-processor folder
 GLOBAL_PATH = ../../lib/e-puck2_main-processor
 
 #Source files to include
-CSRC += ./main.c \
-		./audio_processing.c \
-		./communications.c \
-		./fft.c \
-		./pi_regulator.c \
-
+CSRC += ./usr_interface.c \
+		./detect_obj.c \
+		./led_anim.c \
+		./capture_color.c \
+		./coordinate_motor.c \
+		./main.c \
+				
 #Header folders to include
 INCDIR += 
 
